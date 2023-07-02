@@ -9,7 +9,7 @@ type GuestLayoutProps = {
 export const GuestLayout: FC<GuestLayoutProps> = ({ children }) => {
   return (
       <View
-          style={ tw.style('py-7 px-15') }
+          style={ tw.style('py-7 px-12') }
       >
         { children }
       </View>

@@ -1,7 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useFormik } from 'formik';
+import { StyleSheet } from 'react-native';
+import icons from "../../../assets/incons";
 import * as Yup from 'yup';
+import tw from "twrnc";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 export type LoginFormValues = {
   email: string;
@@ -41,32 +45,58 @@ export const LogInForm = ({ onSubmit, buttonText, isLoading }: {
 
   return (
       <View>
-        <TextInput
-            placeholder="Email"
-            onChangeText={ formik.handleChange('email') }
-            onBlur={ formik.handleBlur('email') }
-            value={ formik.values.email }
-        />
-        { formik.touched.email && formik.errors.email && (
-            <Text>{ formik.errors.email }</Text>
-        ) }
+        <View style={ tw`mb-5` }>
+          <View style={ tw`flex flex-row items-center bg-gray-100 p-1 pl-3 rounded-lg gap-2` }>
+            <FontAwesomeIcon icon={ icons.email } style={ styles.icon }/>
+            <TextInput
+                placeholder="Email"
+                onChangeText={ formik.handleChange('email') }
+                onBlur={ formik.handleBlur('email') }
+                value={ formik.values.email }
+                style={ tw`flex-1` }
+            />
+          </View>
+          { formik.touched.email && formik.errors.email && (
+              <Text style={ tw`text-red-500` }>{ formik.errors.email }</Text>
+          ) }
+        </View>
 
-        <TextInput
-            placeholder="Password"
-            onChangeText={ formik.handleChange('password') }
-            onBlur={ formik.handleBlur('password') }
-            value={ formik.values.password }
-            secureTextEntry
-        />
+        <View style={ tw`flex flex-row items-center bg-gray-100 p-1 pl-3 rounded-lg gap-2` }>
+          <FontAwesomeIcon icon={ icons.password } style={ styles.icon }/>
+          <TextInput
+              placeholder="Password"
+              onChangeText={ formik.handleChange('password') }
+              onBlur={ formik.handleBlur('password') }
+              value={ formik.values.password }
+              style={ tw`flex-1` }
+              secureTextEntry
+          />
+        </View>
         { formik.touched.password && formik.errors.password && (
-            <Text>{ formik.errors.password }</Text>
+            <Text style={ tw`text-red-500` }>{ formik.errors.password }</Text>
         ) }
 
-        <TouchableOpacity onPress={ () => formik.handleSubmit() } disabled={ isLoading }>
-          <Text>{ buttonText }</Text>
+        <TouchableOpacity
+            onPress={ () => formik.handleSubmit() }
+            disabled={ isLoading }
+            style={ [styles.buttonLogin, tw`p-2 rounded my-5`] }
+        >
+          <Text style={ tw`text-center text-white font-bold` }>{ buttonText }</Text>
         </TouchableOpacity>
       </View>
   );
 };
 
 export default LogInForm;
+
+
+const styles = StyleSheet.create({
+  buttonLogin: {
+    backgroundColor: '#146C94',
+    color: '#fff',
+  },
+  icon: {
+    marginStart: 2,
+    color: '#9d9d9d',
+  }
+});

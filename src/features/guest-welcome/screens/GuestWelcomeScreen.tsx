@@ -6,6 +6,7 @@ import { RootStackParamList } from '../../../../types/types';
 import tw from 'twrnc'
 import { GuestLayout } from "../../../components/layout/GuestLayout";
 import { LogInScreen } from "../../log-in/screens/LogInScreen";
+import { AppBanner } from "../../../components/util/AppBanner";
 
 type Props = {
   navigation: StackNavigationProp<RootStackParamList, 'GuestWelcome'>;
@@ -19,15 +20,8 @@ export const GuestWelcomeScreen: FC<Props> = ({ navigation }) => {
   return (
       <GuestLayout>
         <View>
-          <Text style={ tw.style('text-center text-3xl font-bold mb-3') }>
-            INVESTIGATION GROUPS
-          </Text>
-          <Text style={ tw.style('text-center text-2xl font-medium text-gray-500 mb-10') }>
-            Meet researchers who share your interests
-          </Text>
-
+          <AppBanner/>
           <LogInScreen/>
-
         </View>
       </GuestLayout>
   );
