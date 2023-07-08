@@ -2,6 +2,8 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
+export const db = firebase.firestore();	
+
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
 
 export const onAuthStateChanged = (args: firebase.Observer<any, Error> | ((a: firebase.User | null) => any)): firebase.Unsubscribe =>

@@ -9,7 +9,7 @@ const App = () => {
   const { user, isLoading, error } = useUserContext();
 
   if (error) {
-    return null;
+    return <GuestAppNavigator/>;
   }
 
   if (isLoading) {
