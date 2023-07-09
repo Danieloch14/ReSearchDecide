@@ -98,11 +98,11 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: {
           >
             <View style={ tw`flex-row items-center gap-2` }>
               <FontAwesomeIcon icon={ icons.add } style={ tw`text-white` }/>
-              <Text style={ tw`text-white` }>Add members</Text>
+              <Text style={ tw`text-white` }>Add member</Text>
             </View>
           </TouchableOpacity>
 
-          <View style={ tw`flex flex-row items-center bg-gray-100 p-1 pl-3 rounded gap-2` }>
+          <View style={ tw`flex flex-row items-center bg-gray-100 p-1 pl-3 rounded gap-2 mb-3` }>
             <FontAwesomeIcon icon={ icons.search } style={ styles.icon }/>
             <TextInput placeholder="Search..." style={ tw`flex-1` }/>
           </View>
