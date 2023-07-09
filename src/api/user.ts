@@ -2,9 +2,31 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
-export const db = firebase.firestore();	
 
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
+
+
+export const getCurrentUser = (): firebase.User | null => {
+  const currentUser = firebase.auth().currentUser;
+  return currentUser;
+};
+
+export const saveNewUserDB = async (user: firebase.User | null): Promise<void> => {
+  if (user) {
+    const { uid, email, displayName, photoURL } = user;
+    const userRef = firebase.firestore().collection('users').doc(uid);
+    const snapshot = await userRef.get();
+
+    if (!snapshot.exists) {
+      await userRef.set({
+        uid,
+        email,
+        displayName,
+        photoURL, 
+      });
+    }
+  }
+};
 
 export const onAuthStateChanged = (args: firebase.Observer<any, Error> | ((a: firebase.User | null) => any)): firebase.Unsubscribe =>
     firebase.auth().onAuthStateChanged(args);
@@ -14,6 +36,7 @@ export const signUp = async ({ email = '', password = '' }: {email: string; pass
       .then(
           (userCredential) => {
             console.log('Registro exitoso');
+            saveNewUserDB(userCredential.user);
             return userCredential;
           }
       ).catch((error) => {
