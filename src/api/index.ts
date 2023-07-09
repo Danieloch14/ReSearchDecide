@@ -1,4 +1,6 @@
-import firebase from 'firebase/compat/app'
+import firebase from 'firebase/compat/app';
+import 'firebase/firestore';
+
 import {
   FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN,
@@ -15,7 +17,6 @@ console.log('FIREBASE_STORAGE_BUCKET', FIREBASE_STORAGE_BUCKET)
 console.log('FIREBASE_MESSAGING_SENDER_ID', FIREBASE_MESSAGING_SENDER_ID)
 console.log('FIREBASE_APP_ID', FIREBASE_APP_ID)
 
-
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
@@ -26,3 +27,4 @@ const firebaseConfig = {
 }
 
 firebase.initializeApp(firebaseConfig)
+
