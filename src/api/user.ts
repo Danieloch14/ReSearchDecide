@@ -44,7 +44,14 @@ export const sendVerification = (): Promise<void> => {
   return Promise.reject('No user found');
 };
 
-export const signOut = (): Promise<void> => firebase.auth().signOut();
+export const signOut = (): Promise<void> => firebase.auth().signOut()
+    .then(() => {
+      console.log('Cierre de sesión exitoso');
+    }).catch((error) => {
+      console.log('Error al cerrar sesión:', error);
+      throw error;
+    });
+
 
 export const reload = (): Promise<void> => {
   const user = getUser();

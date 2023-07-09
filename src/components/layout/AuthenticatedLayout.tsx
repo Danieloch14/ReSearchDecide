@@ -1,10 +1,18 @@
 import { View } from "native-base";
 import tw from "twrnc";
+import React, { FC } from "react";
+import { SafeAreaView } from "react-native";
 
-export const AuthenticatedLayout = () => {
+type AuthenticatedLayout = {
+  children: React.ReactNode
+}
+
+export const AuthenticatedLayout: FC<AuthenticatedLayout> = ({children}) => {
   return (
-      <View
-          style={ tw.style('p-2') }
-      />
+      <SafeAreaView
+          style={ tw.style('p-3') }
+      >
+        { children }
+      </SafeAreaView>
   )
 }
