@@ -26,6 +26,8 @@ const UserListComponent = ({ users }: UserListComponentProps) => {
           renderItem={({ item }) => (
               <View>
                 <Text>{item.name}</Text>
+                <Text>{item.lastName}</Text>
+
 
 
               </View>
