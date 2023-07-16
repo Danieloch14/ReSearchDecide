@@ -12,10 +12,12 @@ interface Member {
 }
 
 export const saveNewGroup = async ({
+  id = 0,
   name = '',
   description = '',
   members = []
 }: {
+  id: number;
   name: string;
   description: string;
   members: Member[]
