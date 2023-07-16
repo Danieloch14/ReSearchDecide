@@ -1,55 +1,97 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
-import {getCurrentUser} from './user';
+import {getCurrentUser, getDBUserByUid} from './user';
 
-interface Member {
-  id: number,
-  name: string,
-  role: string,
-  state: boolean
-}
 
-export const saveNewGroup = async ({
-  id = 0,
-  name = '',
-  description = '',
-  members = []
-}: {
-  id: number;
+interface Group {
+  id?: string;
   name: string;
   description: string;
-  members: Member[]
-}): Promise<void> => {
+  members: string[];
+}
 
-  if (name === "" || description === "") {
-    alert("please provide a name or a correct description");
-  } else {
+interface Member {
+  userId: string;
+  groupId: string;
+  username: string;
+  email: string;
+}
 
-    try {
-      await firebase.firestore().collection("groups").add({
-        name: name,
-        description: description,
-        members: members,
-      });
 
-    } catch (error) {
-      console.log(error)
-    }
+const db = firebase.firestore();
+const groupCollection = db.collection("groups");
+const counterDocRefGroup = db.collection("Counters").doc("GroupCounter");
+const memberCollection = groupCollection.doc().collection("members");
+const counterDocRefMember = db.collection("Counters").doc("MemberCounter");
+
+async function saveGroup(group: Group): Promise<void> {
+  const user = await getCurrentUser();
+  // Verify if the "groups" collection exists
+  const collectionSnapshot = await groupCollection.limit(1).get();
+  const collectionExists = !collectionSnapshot.empty;
+
+  // If the collection does not exist, create an empty document for it
+  if (!collectionExists) {
+    await groupCollection.doc().set({});
   }
-};
 
-export const addMember = async (
-  groupId: string,
-  member: Member
-): Promise<void> => {
-  try {
-    await firebase.firestore().collection('groups').doc(groupId).update({
-      members: firebase.firestore.FieldValue.arrayUnion(member),
+  if (user) {
+    const { uid } = user;
+  
+    const groupDocRef = await groupCollection.add({
+      name: group.name,
+      description: group.description,
+      members: [uid],
     });
-  } catch (error) {
-    console.log(error);
+  
+    const groupId = groupDocRef.id;
+  
+    await createMember(uid, groupId);
   }
+ 
+}
+
+const getGroupByName = async (name: string): Promise<Group | null> => {
+  const snapshot = await groupCollection.where("name", "==", name).get();
+  if (snapshot.empty) {
+    return null;
+  }
+  const group = snapshot.docs[0].data() as Group;
+  return group;
 };
+
+
+
+
+async function createMember(uid: string, id: string): Promise<void> {
+  // Verify if the "Group" collection exists
+  const collectionSnapshot = await groupCollection.limit(1).get();
+  const collectionExists = !collectionSnapshot.empty;
+
+  // If the collection does not exist, create an empty document for it
+  if (!collectionExists) {
+    await groupCollection.doc().collection("members").add({});
+  }
+
+  const user = await getDBUserByUid(uid);
+
+  if (user) {
+    const { uid: userUid, displayName, email } = user;
+
+    await memberCollection.add({
+      uid: userUid,
+      id,
+      displayName,
+      email,
+    });
+  }
+}
+
+
+
+
+
+
 
 export const deleteGroup = async (groupId: string): Promise<void> => {
   try {

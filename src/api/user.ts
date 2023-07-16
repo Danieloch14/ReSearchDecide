@@ -37,11 +37,11 @@ export const getDBUserByEmail = async (email: string): Promise<firebase.firestor
   return snapshot.docs[0].data();
 };
 
-export const getDBUserByUid = async (uid: string): Promise<firebase.firestore.DocumentData | undefined> => {
+export const getDBUserByUid = async (uid: string): Promise<firebase.User> => {
   const userRef = firebase.firestore().collection('users').doc(uid);
   const snapshot = await userRef.get();
   if (snapshot.exists) {
-    return snapshot.data();
+    return snapshot.data() as firebase.User;
   }
   return Promise.reject('No user found');
 };
