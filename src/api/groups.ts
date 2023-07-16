@@ -1,30 +1,15 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import {getCurrentUser, getDBUserByUid} from './user';
-
-
-interface Group {
-  id?: string;
-  name: string;
-  description: string;
-  members: string[];
-}
-
-interface Member {
-  userId: string;
-  groupId: string;
-  username: string;
-  email: string;
-}
-
+import { GroupItemComponent } from "../components/GroupItemComponent";
+import { Group } from "../model/Group";
+import { Member } from "../model/Member";
 
 const db = firebase.firestore();
 const groupCollection = db.collection("groups");
-const counterDocRefGroup = db.collection("Counters").doc("GroupCounter");
 const memberCollection = groupCollection.doc().collection("members");
-const counterDocRefMember = db.collection("Counters").doc("MemberCounter");
 
-async function saveGroup(group: Group): Promise<void> {
+export const saveGroup = async (group: Group): Promise<void> => {
   const user = await getCurrentUser();
   // Verify if the "groups" collection exists
   const collectionSnapshot = await groupCollection.limit(1).get();
@@ -46,24 +31,14 @@ async function saveGroup(group: Group): Promise<void> {
   
     const groupId = groupDocRef.id;
   
-    await createMember(uid, groupId);
+    await createMember(uid, groupId, 'admin');
   }
  
 }
 
-const getGroupByName = async (name: string): Promise<Group | null> => {
-  const snapshot = await groupCollection.where("name", "==", name).get();
-  if (snapshot.empty) {
-    return null;
-  }
-  const group = snapshot.docs[0].data() as Group;
-  return group;
-};
 
 
-
-
-async function createMember(uid: string, id: string): Promise<void> {
+export const createMember = async(uid: string, idGroup: string, role: string): Promise<void> => {
   // Verify if the "Group" collection exists
   const collectionSnapshot = await groupCollection.limit(1).get();
   const collectionExists = !collectionSnapshot.empty;
@@ -80,14 +55,47 @@ async function createMember(uid: string, id: string): Promise<void> {
 
     await memberCollection.add({
       uid: userUid,
-      id,
+      id: idGroup,
       displayName,
       email,
+      role: role,
     });
   }
 }
 
 
+export const getGroups = async(): Promise<Group[]> => {
+  try {
+    const querySnapshot = await groupCollection.get();
+    const groups: Group[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const members: Member[] = data.members.map((member: any) => {
+        return {
+          id: member.uid,
+          displayName: member.displayName,
+          email: member.email,
+          role: member.role,
+        };
+      });
+
+      const group: Group = {
+        id: doc.id,
+        name: data.name,
+        description: data.description,
+        members: members,
+      };
+
+      groups.push(group);
+    });
+
+    return groups;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}
 
 
 
@@ -101,16 +109,47 @@ export const deleteGroup = async (groupId: string): Promise<void> => {
   }
 };
 
-export const getGroups = async (): Promise<any> => {
-  try {
-    const snapshot = await firebase.firestore().collection('groups').get();
-    const groups = snapshot.docs.map((doc) => doc.data());
-    return groups;
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-};
+// export const getGroups = async (): Promise<Group[]> => {
+//   try {
+//     const snapshot = await firebase.firestore().collection('groups').get();
+//     console.log('snapshot de firebase', snapshot);
+//     const groups: Promise<Group>[] = snapshot.docs.map(async (doc) => {
+//       const data = doc.data();
+//       console.log('data de firebase', data);
+//       const memberRefs = data.members || [];
+//       const memberPromises = memberRefs.map((ref: { get: () => any; }) => ref.get());
+//       const memberSnapshots = await Promise.all(memberPromises);
+//       const members: Member[] = await Promise.all(memberSnapshots.map(async (snapshot) => {
+//         const memberData = snapshot.data();
+//         const userRef = memberData.user;
+//         console.log('userRef de firebase', userRef);
+//         const userSnapshot = await userRef.get();
+//         const userData = userSnapshot.data();
+//         console.log('userData de firebase', userData);
+//         return {
+//           id: snapshot.id,
+//           name: userData.displayName,
+//           role: memberData.role,
+//         };
+//       }));
+//       return {
+//         id: doc.id,
+//         name: data.name,
+//         description: data.description,
+//         members: members,
+//       };
+//     });
+//     return Promise.all(groups);
+//   } catch (error) {
+//     console.log(error);
+//     return [];
+//   }
+// };
+
+
+
+
+
 
 export const getGroup = async (groupId: string): Promise<any> => {
   try {
@@ -161,7 +200,7 @@ export const getMembers = async (groupId: string): Promise<any> => {
 
 export const getMember = async (
   groupId: string,
-  memberId: number
+  memberId: string
 ): Promise<any> => {
   try {
     const doc = await firebase.firestore().collection('groups').doc(groupId).get();
@@ -169,7 +208,7 @@ export const getMember = async (
       const groupData = doc.data();
       if (groupData && groupData.members) {
         const member = groupData.members.find(
-          (member: Member) => member.id === memberId
+          (member: Member) => member.userId === memberId
         );
         if (member) {
           return member;
