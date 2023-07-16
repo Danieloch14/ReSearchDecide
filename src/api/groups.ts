@@ -69,16 +69,21 @@ export const getGroups = async (): Promise<Group[]> => {
       const memberRefs = data.members || [];
       const memberPromises = memberRefs.map((ref: { get: () => any; }) => ref.get());
       const memberSnapshots = await Promise.all(memberPromises);
-      const members: Member[] = memberSnapshots.map((snapshot) => {
+      const members: Member[] = await Promise.all(memberSnapshots.map(async (snapshot) => {
         const memberData = snapshot.data();
+        const userRef = memberData.user; // Obtener la referencia al usuario
+        console.log('userRef de firebase', userRef);
+        const userSnapshot = await userRef.get(); // Obtener los datos del usuario
+        const userData = userSnapshot.data();
+        console.log('userData de firebase', userData);
         return {
           id: snapshot.id,
-          name: memberData.name,
+          name: userData.displayName, // Agregar el nombre del usuario
           role: memberData.role,
           state: memberData.state,
           // Agrega aquí los campos adicionales del miembro según sea necesario
         };
-      });
+      }));
       return {
         id: doc.id,
         name: data.name,
