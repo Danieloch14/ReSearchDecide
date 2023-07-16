@@ -12,6 +12,7 @@ type UserListComponentProps = {
 const UserListComponent = ({ users }: UserListComponentProps) => {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
 
+
   const handleValueChange = (id: string) => {
     const isSelected = selectedIds.includes(id);
     if (isSelected) {
@@ -31,7 +32,7 @@ const UserListComponent = ({ users }: UserListComponentProps) => {
             renderItem={ ({ item }) => (
                 <View style={ tw`py-1 flex-row justify-between items-center border-b border-gray-200` }>
                   <View>
-                    <Text style={ tw`font-medium` }>{ item.name }</Text>
+                    <Text style={ tw`font-medium` }>{ item.displayName }</Text>
                     <Text>{ item.email }</Text>
                   </View>
                   <CheckBox

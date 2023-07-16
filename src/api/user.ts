@@ -1,6 +1,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+import { User } from "../model/User";
 
 
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
@@ -22,7 +23,7 @@ export const saveNewUserDB = async (user: firebase.User | null): Promise<void> =
         uid,
         email,
         displayName,
-        photoURL, 
+        photoURL,
       });
     }
   }
@@ -55,13 +56,24 @@ export const getDBUserByDisplayName = async (displayName: string): Promise<fireb
   return snapshot.docs[0].data();
 };
 
-export const getDBUserList = async (): Promise<firebase.firestore.DocumentData[]> => {
-  const userRef = firebase.firestore().collection('users');
-  const snapshot = await userRef.get();
-  if (snapshot.empty) {
-    return Promise.reject('No user found');
+export const getUsers = async (): Promise<User[]> => {
+  try {
+    const snapshot = await firebase.firestore().collection('users').get();
+    const users: Promise<User>[] = snapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        uid: data.uid,
+        email: data.email,
+        displayName: data.displayName,
+        photoURL: data.photoURL,
+      };
+    });
+    return Promise.all(users);
+  } catch (error) {
+    console.log(error);
+    return [];
   }
-  return snapshot.docs.map((doc) => doc.data());
 };
 
 export const onAuthStateChanged = (args: firebase.Observer<any, Error> | ((a: firebase.User | null) => any)): firebase.Unsubscribe =>

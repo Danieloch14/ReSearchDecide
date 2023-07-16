@@ -61,30 +61,32 @@ export const deleteGroup = async (groupId: string): Promise<void> => {
   }
 };
 
-export const getGroups = async (): Promise<Group[]> => {
-  try {
-    const snapshot = await firebase.firestore().collection('groups').get();
-    console.log('snapshot de firebase', snapshot);
-    const groups: Promise<Group>[] = snapshot.docs.map(async (doc) => {
-      const data = doc.data();
-      console.log('data de firebase', data);
-      const memberRefs = data.members || [];
-      const memberPromises = memberRefs.map((ref: { get: () => any; }) => ref.get());
-      const memberSnapshots = await Promise.all(memberPromises);
-      const members: Member[] = await Promise.all(memberSnapshots.map(async (snapshot) => {
+const fetchMemberData = async (memberRefs: any[]): Promise<Member[]> => {
+  const memberPromises = memberRefs.map((ref: { get: () => any }) => ref.get());
+  const memberSnapshots = await Promise.all(memberPromises);
+  const members: Member[] = await Promise.all(
+      memberSnapshots.map(async (snapshot) => {
         const memberData = snapshot.data();
         const userRef = memberData.user;
-        console.log('userRef de firebase', userRef);
         const userSnapshot = await userRef.get();
         const userData = userSnapshot.data();
-        console.log('userData de firebase', userData);
         return {
           id: snapshot.id,
           name: userData.displayName,
           role: memberData.role,
           state: memberData.state,
         };
-      }));
+      })
+  );
+  return members;
+};
+
+export const getGroups = async (): Promise<Group[]> => {
+  try {
+    const snapshot = await firebase.firestore().collection('groups').get();
+    const groups: Promise<Group>[] = snapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      const members: Member[] = await fetchMemberData(data.members || []);
       return {
         id: doc.id,
         name: data.name,
@@ -98,7 +100,6 @@ export const getGroups = async (): Promise<Group[]> => {
     return [];
   }
 };
-
 
 
 

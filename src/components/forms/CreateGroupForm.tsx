@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { View, Text, TextInput, TouchableOpacity, Dimensions, StyleSheet, Alert, Modal } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import icons from '../../../assets/incons';
@@ -7,10 +6,10 @@ import tw from 'twrnc';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import UserListComponent from '../UserListComponent';
-import { User } from '../../model/User';
 import { Group } from "../../model/Group";
-import { Pressable } from "native-base";
 import MembersListComponent from "../MembersListComponent";
+import { User } from "../../model/User";
+import { useUsers } from "../../hooks/use-users";
 
 export type CreateGroupFormValues = {
   group: Group;
@@ -21,7 +20,7 @@ const buildValidationSchema = () => {
     group: Yup.object().shape({
       name: Yup.string().required('Name is required'),
       description: Yup.string().required('Description is required'),
-      adminName: Yup.string().required('Admin name is required'),
+      members: Yup.array().min(1, 'At least one member is required'),
     }),
   });
 };
@@ -32,14 +31,12 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
       id: 0,
       name: '',
       description: '',
-      adminName: '',
+      members: [],
     },
   };
-
   const handleSubmit = (values: CreateGroupFormValues) => {
     onSubmit(values);
   };
-
   const formik = useFormik({
     initialValues,
     onSubmit: handleSubmit,
@@ -47,12 +44,11 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
   });
 
   const windowWidth = Dimensions.get('window').width;
-  const windowHeight = Dimensions.get('window').height;
   const isWeb = windowWidth >= 768;
   const contentWidth = isWeb ? Math.round(windowWidth * 0.6) : windowWidth;
-  const contentHeight = isWeb ? Math.round(windowHeight * 0.6) : windowHeight;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const users = useUsers();
 
   return (
       <View style={ [styles.container, isWeb && { width: contentWidth }] }>
@@ -105,7 +101,7 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
                 <TextInput placeholder="Search..." style={ tw`flex-1` }/>
               </View>
 
-              <MembersListComponent users={ data }/>
+              {/*<MembersListComponent users={ data }/>*/}
 
             </View>
           </View>
@@ -134,7 +130,7 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
               </TouchableOpacity>
               <View style={ tw`w-full` }>
                 <Text style={ tw`text-xl font-bold my-4 text-center` }>User list</Text>
-                <UserListComponent users={ data }/>
+                <UserListComponent users={ users}/>
               </View>
             </View>
           </View>
@@ -238,23 +234,4 @@ const styles = StyleSheet.create({
 
 });
 
-const data: User[] = [
-  {
-    id: 1,
-    name: 'John Doe',
-    lastName: 'Doe',
-    email: 'example.com',
-  },
-  {
-    id: 2,
-    name: 'John Doe',
-    lastName: 'Doe',
-    email: 'example.com',
-  },
-  {
-    id: 3,
-    name: 'John Doe',
-    lastName: 'Doe',
-    email: 'example.com',
-  },
-];
+
