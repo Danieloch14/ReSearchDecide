@@ -1,7 +1,6 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import {getCurrentUser, getDBUserByUid} from './user';
-import { GroupItemComponent } from "../components/GroupItemComponent";
 import { Group } from "../model/Group";
 import { Member } from "../model/Member";
 
@@ -36,8 +35,6 @@ export const saveGroup = async (group: Group): Promise<void> => {
  
 }
 
-
-
 export const createMember = async(uid: string, idGroup: string, role: string): Promise<void> => {
   // Verify if the "Group" collection exists
   const collectionSnapshot = await groupCollection.limit(1).get();
@@ -71,10 +68,11 @@ export const getGroups = async(): Promise<Group[]> => {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      const members: Member[] = data.members.map((member: any) => {
+      const members: Member[] = data.members.map((member: Member) => {
         return {
-          id: member.uid,
-          displayName: member.displayName,
+          uid: member.userId,
+          groupId: member.groupId,
+          displayName: member.username,
           email: member.email,
           role: member.role,
         };
@@ -98,16 +96,50 @@ export const getGroups = async(): Promise<Group[]> => {
 }
 
 
+export const deleteGroupById = async (groupId: string): Promise<void> => {
+  await groupCollection.doc(groupId).delete();
+}
 
+export const deleteGroupByName = async (groupName: string): Promise<void> => {
+  const querySnapshot = await groupCollection.where("name", "==", groupName).get();
 
+  querySnapshot.forEach((doc) => {
+    doc.ref.delete();
+  });
+}
 
-export const deleteGroup = async (groupId: string): Promise<void> => {
-  try {
-    await firebase.firestore().collection('groups').doc(groupId).delete();
-  } catch (error) {
-    console.log(error);
-  }
-};
+export const deleteMemberById = async(memberId: string, groupId: string): Promise<void> => {
+  const memberCollection = groupCollection.doc(groupId).collection("members");
+  await memberCollection.doc(memberId).delete();
+}
+
+export const listMembers = async (groupId: string): Promise<Member[]> => {
+  const memberCollection = groupCollection.doc(groupId).collection("members");
+  const querySnapshot = await memberCollection.get();
+  const members: Member[] = [];
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data() as Member;
+
+    const member: Member = {
+      userId: data.userId,
+      groupId: data.groupId,
+      username: data.username,
+      email: data.email,
+      role: data.role,
+    };
+
+    members.push(member);
+  });
+
+  return members;
+}
+
+export const updateMemberRole = async (memberId: string, groupId: string, newRole: string): Promise<void> => {
+  const memberCollection = groupCollection.doc(groupId).collection("members");
+  await memberCollection.doc(memberId).update({ role: newRole });
+}
+
 
 // export const getGroups = async (): Promise<Group[]> => {
 //   try {
@@ -151,127 +183,6 @@ export const deleteGroup = async (groupId: string): Promise<void> => {
 
 
 
-export const getGroup = async (groupId: string): Promise<any> => {
-  try {
-    const doc = await firebase.firestore().collection('groups').doc(groupId).get();
-    if (doc.exists) {
-      return doc.data();
-    } else {
-      console.log('Group not found');
-      return null;
-    }
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-};
 
-export const updateGroup = async (
-  groupId: string,
-  newData: { name?: string; description?: string; members?: Member[] }
-): Promise<void> => {
-  try {
-    await firebase.firestore().collection('groups').doc(groupId).update(newData);
-  } catch (error) {
-    console.log(error);
-  }
-};
 
-export const getMembers = async (groupId: string): Promise<any> => {
-  try {
-    const doc = await firebase.firestore().collection('groups').doc(groupId).get();
-    if (doc.exists) {
-      const groupData = doc.data();
-      if (groupData && groupData.members) {
-        return groupData.members;
-      } else {
-        console.log('Members not found');
-        return [];
-      }
-    } else {
-      console.log('Group not found');
-      return null;
-    }
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-};
 
-export const getMember = async (
-  groupId: string,
-  memberId: string
-): Promise<any> => {
-  try {
-    const doc = await firebase.firestore().collection('groups').doc(groupId).get();
-    if (doc.exists) {
-      const groupData = doc.data();
-      if (groupData && groupData.members) {
-        const member = groupData.members.find(
-          (member: Member) => member.userId === memberId
-        );
-        if (member) {
-          return member;
-        } else {
-          console.log('Member not found');
-          return null;
-        }
-      } else {
-        console.log('Members not found');
-        return null;
-      }
-    } else {
-      console.log('Group not found');
-      return null;
-    }
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-};
-
-export const updateMember = async (
-  groupId: string,
-  memberId: number,
-  newData: { name?: string; role?: string; state?: boolean }
-): Promise<void> => {
-  try {
-    await firebase.firestore()
-      .collection('groups')
-      .doc(groupId)
-      .update({
-        'members': firebase.firestore.FieldValue.arrayRemove({
-          'id': memberId,
-        }),
-      });
-    await firebase.firestore()
-      .collection('groups')
-      .doc(groupId)
-      .update({
-        'members': firebase.firestore.FieldValue.arrayUnion({
-          'id': memberId,
-          ...newData,
-        }),
-      });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const deleteMember = async (
-  groupId: string,
-  memberId: number
-): Promise<void> => {
-  try {
-    await firebase.firestore()
-      .collection('groups')
-      .doc(groupId)
-      .update({
-        'members': firebase.firestore.FieldValue.arrayRemove({
-          'id': memberId,
-        }),
-      });
-  } catch (error) {
-    console.log(error);
-  }
-};

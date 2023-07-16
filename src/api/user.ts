@@ -11,7 +11,7 @@ export const getCurrentUser = (): firebase.User | null => {
   return currentUser;
 };
 
-export const saveNewUserDB = async (user: firebase.User | null): Promise<void> => {
+export const saveNewUserDB = async (user: firebase.User | null, userName: string): Promise<void> => {
   if (user) {
     const { uid, email, displayName, photoURL } = user;
     const userRef = firebase.firestore().collection('users').doc(uid);
@@ -21,7 +21,7 @@ export const saveNewUserDB = async (user: firebase.User | null): Promise<void> =
       await userRef.set({
         uid,
         email,
-        displayName,
+        displayName: userName || displayName,
         photoURL, 
       });
     }
@@ -67,12 +67,13 @@ export const getDBUserList = async (): Promise<firebase.firestore.DocumentData[]
 export const onAuthStateChanged = (args: firebase.Observer<any, Error> | ((a: firebase.User | null) => any)): firebase.Unsubscribe =>
     firebase.auth().onAuthStateChanged(args);
 
-export const signUp = async ({ email = '', password = '' }: {email: string; password: string}): Promise<void> => {
+export const signUp = async ({ email = '', password = '', userName= '' }: {email: string; password: string, userName: string}): Promise<void> => {
   await firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(
           (userCredential) => {
             console.log('Registro exitoso');
-            saveNewUserDB(userCredential.user);
+            saveNewUserDB(userCredential.user, userName);
+            console.log(userCredential.user, 'userCredential')
             return userCredential;
           }
       ).catch((error) => {

@@ -1,6 +1,7 @@
 export interface Member {
-  id: number,
-  name: string,
-  role: string,
-  state: boolean
+  userId: string;
+  groupId: string;
+  username: string;
+  email: string;
+  role: string;
 }
