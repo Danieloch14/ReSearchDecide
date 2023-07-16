@@ -1,6 +1,8 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import {getCurrentUser} from './user';
+import { GroupItemComponent } from "../components/GroupItemComponent";
+import { Group } from "../model/Group";
 
 interface Member {
   id: number,
@@ -57,16 +59,44 @@ export const deleteGroup = async (groupId: string): Promise<void> => {
   }
 };
 
-export const getGroups = async (): Promise<any> => {
+export const getGroups = async (): Promise<Group[]> => {
   try {
     const snapshot = await firebase.firestore().collection('groups').get();
-    const groups = snapshot.docs.map((doc) => doc.data());
-    return groups;
+    console.log('snapshot de firebase', snapshot);
+    const groups: Promise<Group>[] = snapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      console.log('data de firebase', data);
+      const memberRefs = data.members || [];
+      const memberPromises = memberRefs.map((ref: { get: () => any; }) => ref.get());
+      const memberSnapshots = await Promise.all(memberPromises);
+      const members: Member[] = memberSnapshots.map((snapshot) => {
+        const memberData = snapshot.data();
+        return {
+          id: snapshot.id,
+          name: memberData.name,
+          role: memberData.role,
+          state: memberData.state,
+          // Agrega aquí los campos adicionales del miembro según sea necesario
+        };
+      });
+      return {
+        id: doc.id,
+        name: data.name,
+        description: data.description,
+        members: members,
+      };
+    });
+    return Promise.all(groups);
   } catch (error) {
     console.log(error);
     return [];
   }
 };
+
+
+
+
+
 
 export const getGroup = async (groupId: string): Promise<any> => {
   try {

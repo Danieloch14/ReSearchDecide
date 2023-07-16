@@ -2,10 +2,10 @@ import { View, Text } from "native-base";
 import React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import tw from "twrnc";
-import { GroupItem } from "../model/GroupItem";
+import { Group } from "../model/Group";
 
 export type GroupItemProps = {
-  group: GroupItem,
+  group: Group,
   onPress?: () => void,
   isSelected?: boolean
 }

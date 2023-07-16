@@ -43,7 +43,7 @@ const HomeStack = ({ navigation }: any) => (
             headerTitleStyle: styles.headerTitle,
           } }
       />
-      <Stack.Screen name={ 'CreateGroupScreen' } component={ CreateGroupScreen }/>
+      <Stack.Screen name={ 'CreateGroupScreen' } options={{title: 'Create Group'}} component={ CreateGroupScreen }/>
     </Stack.Navigator>
 );
 
