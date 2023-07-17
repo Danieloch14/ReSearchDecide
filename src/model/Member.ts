@@ -1,7 +1,7 @@
 export interface Member {
   userId: string;
   groupId: string;
-  username: string;
+  userName: string;
   email: string;
   role: string;
 }

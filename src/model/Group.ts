@@ -1,8 +1,8 @@
 import { Member } from "./Member";
 
 export interface Group {
-  id: string;
+  id?: string;
   name: string;
   description: string;
-  members: Member[];
+ 
 }
