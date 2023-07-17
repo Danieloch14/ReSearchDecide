@@ -1,7 +1,6 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-import { User } from "../model/User";
 
 
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
@@ -12,7 +11,7 @@ export const getCurrentUser = (): firebase.User | null => {
   return currentUser;
 };
 
-export const saveNewUserDB = async (user: firebase.User | null): Promise<void> => {
+export const saveNewUserDB = async (user: firebase.User | null, userName: string): Promise<void> => {
   if (user) {
     const { uid, email, displayName, photoURL } = user;
     const userRef = firebase.firestore().collection('users').doc(uid);
@@ -22,8 +21,8 @@ export const saveNewUserDB = async (user: firebase.User | null): Promise<void> =
       await userRef.set({
         uid,
         email,
-        displayName,
-        photoURL,
+        displayName: userName || displayName,
+        photoURL, 
       });
     }
   }
@@ -38,11 +37,11 @@ export const getDBUserByEmail = async (email: string): Promise<firebase.firestor
   return snapshot.docs[0].data();
 };
 
-export const getDBUserByUid = async (uid: string): Promise<firebase.firestore.DocumentData | undefined> => {
+export const getDBUserByUid = async (uid: string): Promise<firebase.User> => {
   const userRef = firebase.firestore().collection('users').doc(uid);
   const snapshot = await userRef.get();
   if (snapshot.exists) {
-    return snapshot.data();
+    return snapshot.data() as firebase.User;
   }
   return Promise.reject('No user found');
 };
@@ -56,35 +55,25 @@ export const getDBUserByDisplayName = async (displayName: string): Promise<fireb
   return snapshot.docs[0].data();
 };
 
-export const getUsers = async (): Promise<User[]> => {
-  try {
-    const snapshot = await firebase.firestore().collection('users').get();
-    const users: Promise<User>[] = snapshot.docs.map(async (doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        uid: data.uid,
-        email: data.email,
-        displayName: data.displayName,
-        photoURL: data.photoURL,
-      };
-    });
-    return Promise.all(users);
-  } catch (error) {
-    console.log(error);
-    return [];
+export const getDBUserList = async (): Promise<firebase.firestore.DocumentData[]> => {
+  const userRef = firebase.firestore().collection('users');
+  const snapshot = await userRef.get();
+  if (snapshot.empty) {
+    return Promise.reject('No user found');
   }
+  return snapshot.docs.map((doc) => doc.data());
 };
 
 export const onAuthStateChanged = (args: firebase.Observer<any, Error> | ((a: firebase.User | null) => any)): firebase.Unsubscribe =>
     firebase.auth().onAuthStateChanged(args);
 
-export const signUp = async ({ email = '', password = '' }: {email: string; password: string}): Promise<void> => {
+export const signUp = async ({ email = '', password = '', userName= '' }: {email: string; password: string, userName: string}): Promise<void> => {
   await firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(
           (userCredential) => {
             console.log('Registro exitoso');
-            saveNewUserDB(userCredential.user);
+            saveNewUserDB(userCredential.user, userName);
+            console.log(userCredential.user, 'userCredential')
             return userCredential;
           }
       ).catch((error) => {

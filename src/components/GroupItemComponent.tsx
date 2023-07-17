@@ -25,7 +25,7 @@ export const GroupItemComponent = ({ group, onPress, isSelected }: GroupItemProp
       >
         <Text style={ [tw`font-bold`, textStyle] }>{ group.name.toUpperCase() || ' Group name' }</Text>
         <Text
-            style={ [tw`text-sm`, textStyle] }>Admin: { group.members.find(m => m.role === 'admin')?.name || 'Admin name' }</Text>
+            style={ [tw`text-sm`, textStyle] }>Admin: { group.members.find(m => m.role === 'admin')?.username || 'Admin name' }</Text>
       </TouchableOpacity>
   );
 }
