@@ -29,12 +29,12 @@ export const saveGroup = async (group: Group): Promise<void> => {
   
     const groupId = groupDocRef.id;
   
-    await createMember(uid, groupId, 'admin');
+    await addMember(uid, groupId, 'admin');
   }
  
 }
 
-export const createMember = async(uid: string, idGroup: string, role: string): Promise<void> => {
+export const addMember = async(uid: string, idGroup: string, role: string): Promise<void> => {
   // Verify if the "Group" collection exists
   const collectionSnapshot = await memberCollection.limit(1).get();
   const collectionExists = !collectionSnapshot.empty;
@@ -59,7 +59,7 @@ export const createMember = async(uid: string, idGroup: string, role: string): P
   }
 }
 
-export const getUserGroups = async (): Promise<Group[]> => {
+export const getGroupsByUser = async (): Promise<Group[]> => {
   const user = getCurrentUser();
 
   if (user) {
@@ -113,51 +113,8 @@ export const getGroupMembers = async (groupId: string): Promise<Member[]> => {
 };
 
 
-
-export const getGroups = async(): Promise<Group[]> => {
-  try {
-    const querySnapshot = await groupCollection.get();
-    const groups: Group[] = [];
-
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      const members: Member[] = data.members.map((member: Member) => {
-        return {
-          uid: member.userId,
-          groupId: member.groupId,
-          displayName: member.userName,
-          email: member.email,
-          role: member.role,
-        };
-      });
-
-      const group: Group = {
-        id: doc.id,
-        name: data.name,
-        description: data.description
-      };
-
-      groups.push(group);
-    });
-
-    return groups;
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-}
-
-
 export const deleteGroupById = async (groupId: string): Promise<void> => {
   await groupCollection.doc(groupId).delete();
-}
-
-export const deleteGroupByName = async (groupName: string): Promise<void> => {
-  const querySnapshot = await groupCollection.where("name", "==", groupName).get();
-
-  querySnapshot.forEach((doc) => {
-    doc.ref.delete();
-  });
 }
 
 export const deleteMemberById = async(memberId: string, groupId: string): Promise<void> => {
@@ -165,33 +122,52 @@ export const deleteMemberById = async(memberId: string, groupId: string): Promis
   await memberCollection.doc(memberId).delete();
 }
 
-export const listMembers = async (groupId: string): Promise<Member[]> => {
-  const memberCollection = groupCollection.doc(groupId).collection("members");
-  const querySnapshot = await memberCollection.get();
-  const members: Member[] = [];
-
-  querySnapshot.forEach((doc) => {
-    const data = doc.data() as Member;
-
-    const member: Member = {
-      userId: data.userId,
-      groupId: data.groupId,
-      userName: data.userName,
-      email: data.email,
-      role: data.role,
-    };
-
-    members.push(member);
-  });
-
-  return members;
-}
 
 export const updateMemberRole = async (memberId: string, groupId: string, newRole: string): Promise<void> => {
   const memberCollection = groupCollection.doc(groupId).collection("members");
   await memberCollection.doc(memberId).update({ role: newRole });
 }
 
+// export const deleteGroupByName = async (groupName: string): Promise<void> => {
+//   const querySnapshot = await groupCollection.where("name", "==", groupName).get();
+
+//   querySnapshot.forEach((doc) => {
+//     doc.ref.delete();
+//   });
+// }
+
+// export const getGroups = async(): Promise<Group[]> => {
+//   try {
+//     const querySnapshot = await groupCollection.get();
+//     const groups: Group[] = [];
+
+//     querySnapshot.forEach((doc) => {
+//       const data = doc.data();
+//       const members: Member[] = data.members.map((member: Member) => {
+//         return {
+//           uid: member.userId,
+//           groupId: member.groupId,
+//           displayName: member.userName,
+//           email: member.email,
+//           role: member.role,
+//         };
+//       });
+
+//       const group: Group = {
+//         id: doc.id,
+//         name: data.name,
+//         description: data.description
+//       };
+
+//       groups.push(group);
+//     });
+
+//     return groups;
+//   } catch (error) {
+//     console.log(error);
+//     return [];
+//   }
+// }
 
 // export const getGroups = async (): Promise<Group[]> => {
 //   try {
