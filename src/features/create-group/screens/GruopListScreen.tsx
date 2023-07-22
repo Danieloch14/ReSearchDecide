@@ -13,6 +13,7 @@ export const GroupListScreen = () => {
   const [searchValue, setSearchValue] = useState('');
 
   const handleSearch = (value: string) => {
+    console.log(value);
     setSearchValue(value);
   };
 

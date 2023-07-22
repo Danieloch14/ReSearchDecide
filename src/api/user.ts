@@ -108,9 +108,7 @@ export const sendVerification = (): Promise<void> => {
 
 export const signOut = (): Promise<void> => firebase.auth().signOut()
     .then(() => {
-      console.log('Cierre de sesión exitoso');
     }).catch((error) => {
-      console.log('Error al cerrar sesión:', error);
       throw error;
     });
 
