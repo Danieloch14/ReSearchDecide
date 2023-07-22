@@ -1,6 +1,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+import { User } from '../model/User';
 
 
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
@@ -28,40 +29,40 @@ export const saveNewUserDB = async (user: firebase.User | null, userName: string
   }
 };
 
-export const getDBUserByEmail = async (email: string): Promise<firebase.firestore.DocumentData> => {
+export const getDBUserByEmail = async (email: string): Promise<User> => {
   const userRef = firebase.firestore().collection('users').where('email', '==', email);
   const snapshot = await userRef.get();
   if (snapshot.empty) {
     return Promise.reject('No user found');
   }
-  return snapshot.docs[0].data();
+  return snapshot.docs[0].data() as User;
 };
 
-export const getDBUserByUid = async (uid: string): Promise<firebase.User> => {
+export const getDBUserByUid = async (uid: string): Promise<User> => {
   const userRef = firebase.firestore().collection('users').doc(uid);
   const snapshot = await userRef.get();
   if (snapshot.exists) {
-    return snapshot.data() as firebase.User;
+    return snapshot.data() as User;
   }
   return Promise.reject('No user found');
 };
 
-export const getDBUserByDisplayName = async (displayName: string): Promise<firebase.firestore.DocumentData> => {
+export const getDBUserByDisplayName = async (displayName: string): Promise<User> => {
   const userRef = firebase.firestore().collection('users').where('displayName', '==', displayName);
   const snapshot = await userRef.get();
   if (snapshot.empty) {
     return Promise.reject('No user found');
   }
-  return snapshot.docs[0].data();
+  return snapshot.docs[0].data() as User;
 };
 
-export const getDBUserList = async (): Promise<firebase.firestore.DocumentData[]> => {
+export const getDBUserList = async (): Promise<User[]> => {
   const userRef = firebase.firestore().collection('users');
   const snapshot = await userRef.get();
   if (snapshot.empty) {
     return Promise.reject('No user found');
   }
-  return snapshot.docs.map((doc) => doc.data());
+  return snapshot.docs.map((doc) => doc.data() as User);
 };
 
 export const onAuthStateChanged = (args: firebase.Observer<any, Error> | ((a: firebase.User | null) => any)): firebase.Unsubscribe =>
