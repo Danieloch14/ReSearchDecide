@@ -22,7 +22,7 @@ export const saveNewUserDB = async (user: firebase.User | null, userName: string
         uid,
         email,
         displayName: userName || displayName,
-        photoURL, 
+        photoURL,
       });
     }
   }
@@ -67,13 +67,18 @@ export const getDBUserList = async (): Promise<firebase.firestore.DocumentData[]
 export const onAuthStateChanged = (args: firebase.Observer<any, Error> | ((a: firebase.User | null) => any)): firebase.Unsubscribe =>
     firebase.auth().onAuthStateChanged(args);
 
-export const signUp = async ({ email = '', password = '', userName= '' }: {email: string; password: string, userName: string}): Promise<void> => {
+export const signUp = async ({ email = '', password = '', userName = '' }: {
+  email: string;
+  password: string,
+  userName: string
+}): Promise<void> => {
   await firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(
-          (userCredential) => {
-            console.log('Registro exitoso');
-            saveNewUserDB(userCredential.user, userName);
-            console.log(userCredential.user, 'userCredential')
+          async (userCredential) => {
+            await userCredential.user?.updateProfile({
+              displayName: userName,
+            });
+            await saveNewUserDB(userCredential.user, userName);
             return userCredential;
           }
       ).catch((error) => {
