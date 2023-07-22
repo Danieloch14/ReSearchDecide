@@ -1,5 +1,10 @@
 {
   "name": "researchdecide",
+  "jest": {
+    "testMatch": [
+      "**/*.steps.ts"
+    ]
+  },
   "version": "1.0.0",
   "main": "src/Root.tsx",
   "scripts": {
@@ -46,6 +51,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@babel/preset-typescript": "^7.22.5",
     "@types/chai": "^4.3.5",
     "@types/cucumber": "^7.0.0",
     "@types/react": "~18.0.14",
