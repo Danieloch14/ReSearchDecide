@@ -3,13 +3,21 @@ import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { User } from '../model/User';
 
-
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
 
 
 export const getCurrentUser = (): firebase.User | null => {
   const currentUser = firebase.auth().currentUser;
   return currentUser;
+};
+
+export const deleteDBUser = async (email: string): Promise<void> => {
+  const userRef = firebase.firestore().collection('users').where('email', '==', email);
+  const snapshot = await userRef.get();
+  if (snapshot.empty) {
+    return Promise.reject('No user found');
+  }
+  snapshot.docs.forEach((doc) => doc.ref.delete());
 };
 
 export const saveNewUserDB = async (user: firebase.User | null, userName: string): Promise<void> => {

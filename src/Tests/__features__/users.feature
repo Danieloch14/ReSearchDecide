@@ -1,7 +1,7 @@
 Feature: User Management
 
   Scenario: Save new user to the database
-    Given the user is authenticated
+    Given the user is not authenticated
     When a new user with email "user@example.com" and password "password123" signs up with username "John Doe"
     Then the user should be saved to the database
 

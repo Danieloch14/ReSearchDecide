@@ -3,26 +3,111 @@ import { getUser, saveNewUserDB, getDBUserByEmail, getDBUserByUid, getDBUserByDi
 const { Given, When, Then } = require('cucumber');
 import { defineFeature, loadFeature } from 'jest-cucumber';
 const feature = loadFeature('../../../../../SITDECG/ReSearchDecide/src/Tests/__features__/users.feature');
+import firebase from 'firebase/compat/app';
+import 'firebase/firestore';
+import admin from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
+
+
+import {
+    FIREBASE_API_KEY,
+    FIREBASE_AUTH_DOMAIN,
+    FIREBASE_PROJECT_ID,
+    FIREBASE_STORAGE_BUCKET,
+    FIREBASE_MESSAGING_SENDER_ID,
+    FIREBASE_APP_ID,
+} from '@env'
+
+console.log('FIREBASE_API_KEY', FIREBASE_API_KEY)
+console.log('FIREBASE_AUTH_DOMAIN', FIREBASE_AUTH_DOMAIN)
+console.log('FIREBASE_PROJECT_ID', FIREBASE_PROJECT_ID)
+console.log('FIREBASE_STORAGE_BUCKET', FIREBASE_STORAGE_BUCKET)
+console.log('FIREBASE_MESSAGING_SENDER_ID', FIREBASE_MESSAGING_SENDER_ID)
+console.log('FIREBASE_APP_ID', FIREBASE_APP_ID)
+
+const firebaseConfig = {
+    apiKey: FIREBASE_API_KEY,
+    authDomain: FIREBASE_AUTH_DOMAIN,
+    projectId: FIREBASE_PROJECT_ID,
+    storageBucket: FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+    appId: FIREBASE_APP_ID,
+}
+
+firebase.initializeApp(firebaseConfig)
+admin.initializeApp(firebaseConfig);
+
+
+const firestore = admin.firestore();
+async function deleteAllUsers() {
+    try {
+        const listUsersResult = await admin.auth().listUsers();
+
+        listUsersResult.users.forEach(async (userRecord) => {
+            await admin.auth().deleteUser(userRecord.uid);
+        });
+
+        console.log("Usuarios eliminados exitosamente.");
+    } catch (error) {
+        console.error("Error al eliminar usuarios:", error);
+    }
+}
+async function deleteAllCollections() {
+    try {
+        const collections = await firestore.listCollections();
+
+        for (const collection of collections) {
+            await deleteCollection(collection);
+        }
+
+        console.log('Todas las colecciones eliminadas exitosamente.');
+    } catch (error) {
+        console.error('Error al eliminar colecciones:', error);
+    }
+}
+
+async function deleteCollection(collection: FirebaseFirestore.CollectionReference<FirebaseFirestore.DocumentData>) {
+    const documents = await collection.listDocuments();
+
+    for (const document of documents) {
+        await document.delete();
+    }
+}
+
+deleteAllCollections();
+deleteAllUsers();
 defineFeature(feature, (test) => {
+
 
     beforeEach(() => {
         // Reset the user before each scenario
         // resetUser(); 
+
+
     });
 
-    test('Save new user to the database', ({ given, when, then }) => {	
-        
-        given('the user is authenticated', () => {
+    test('Save new user to the database', ({ given, when, then }) => {
+
+        let newUser;
+        given('the user is not authenticated', () => {
+            // Implementation of the user authentication step
 
         });
 
-        when(/^a new user with email "(.*)" and password "(.*)" signs up with username "(.*)"$/, (arg0, arg1, arg2) => {
-
+        when(/^a new user with email "(.*)" and password "(.*)" signs up with username "(.*)"$/, async (arg0, arg1, arg2) => {
+            newUser = { email: arg0 as string, password: arg1 as string, userName: arg2 as string };
+            console.log('newUser', newUser);
+            signUp(newUser);
+            let user = await getDBUserByEmail(newUser.email);
+            console.log('user', user);
         });
 
         then('the user should be saved to the database', () => {
-
+            const user = getUser();
+            console.log('user', user);
+            expect(user).to.exist;
         });
 
     });
