@@ -22,6 +22,7 @@ export const deleteDBUser = async (email: string): Promise<void> => {
 
 export const saveNewUserDB = async (user: firebase.User | null, userName: string): Promise<void> => {
   if (user) {
+    console.log('user', user)
     const { uid, email, displayName, photoURL } = user;
     const userRef = firebase.firestore().collection('users').doc(uid);
     const snapshot = await userRef.get();

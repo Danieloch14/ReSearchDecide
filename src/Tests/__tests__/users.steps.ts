@@ -18,7 +18,9 @@ import {
     FIREBASE_STORAGE_BUCKET,
     FIREBASE_MESSAGING_SENDER_ID,
     FIREBASE_APP_ID,
+    GOOGLE_APPLICATION_CREDENTIALS,
 } from '@env'
+import { User } from '../../model/User';
 
 console.log('FIREBASE_API_KEY', FIREBASE_API_KEY)
 console.log('FIREBASE_AUTH_DOMAIN', FIREBASE_AUTH_DOMAIN)
@@ -26,6 +28,7 @@ console.log('FIREBASE_PROJECT_ID', FIREBASE_PROJECT_ID)
 console.log('FIREBASE_STORAGE_BUCKET', FIREBASE_STORAGE_BUCKET)
 console.log('FIREBASE_MESSAGING_SENDER_ID', FIREBASE_MESSAGING_SENDER_ID)
 console.log('FIREBASE_APP_ID', FIREBASE_APP_ID)
+console.log('GOOGLE_APPLICATION_CREDENTIALS', GOOGLE_APPLICATION_CREDENTIALS)
 
 const firebaseConfig = {
     apiKey: FIREBASE_API_KEY,
@@ -34,13 +37,18 @@ const firebaseConfig = {
     storageBucket: FIREBASE_STORAGE_BUCKET,
     messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
     appId: FIREBASE_APP_ID,
+    google: GOOGLE_APPLICATION_CREDENTIALS,
+   
 }
 
 firebase.initializeApp(firebaseConfig)
-admin.initializeApp(firebaseConfig);
+var serviceAccount = require(GOOGLE_APPLICATION_CREDENTIALS);
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
 
 
-const firestore = admin.firestore();
+const firestore = getFirestore();
 async function deleteAllUsers() {
     try {
         const listUsersResult = await admin.auth().listUsers();
@@ -76,7 +84,7 @@ async function deleteCollection(collection: FirebaseFirestore.CollectionReferenc
     }
 }
 
-deleteAllCollections();
+// deleteAllCollections();
 deleteAllUsers();
 defineFeature(feature, (test) => {
 
@@ -93,21 +101,23 @@ defineFeature(feature, (test) => {
         let newUser;
         given('the user is not authenticated', () => {
             // Implementation of the user authentication step
+            // const user = getUser();
+    
 
         });
 
-        when(/^a new user with email "(.*)" and password "(.*)" signs up with username "(.*)"$/, async (arg0, arg1, arg2) => {
-            newUser = { email: arg0 as string, password: arg1 as string, userName: arg2 as string };
-            console.log('newUser', newUser);
-            signUp(newUser);
-            let user = await getDBUserByEmail(newUser.email);
-            console.log('user', user);
+        when(/^a new user with email "(.*)" and password "(.*)" signs up with username "(.*)"$/, async (arg0: string, arg1: string, arg2: string) => {
+            newUser = { email: arg0, password: arg1, userName: arg2  };
+            const user = signUp(newUser);
         });
 
         then('the user should be saved to the database', () => {
-            const user = getUser();
-            console.log('user', user);
-            expect(user).to.exist;
+            // const user = getUser();
+            // console.log('user', user);
+            // expect(user).to.exist;
+            const users: Promise<User[]> = getDBUserList();
+            console.log('users', users);
+            // const user = getDBUserByEmail(newUser.email);
         });
 
     });

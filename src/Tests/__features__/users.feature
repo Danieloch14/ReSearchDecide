@@ -2,12 +2,12 @@ Feature: User Management
 
   Scenario: Save new user to the database
     Given the user is not authenticated
-    When a new user with email "user@example.com" and password "password123" signs up with username "John Doe"
+    When a new user with email "danielo14ch@hotmail.com" and password "password123" signs up with username "Efrain"
     Then the user should be saved to the database
 
   Scenario: Retrieve user by email
     Given the user is authenticated
-    When I search for a user with email "user@example.com"
+    When I search for a user with email "danielo14ch@hotmail.com"
     Then the user details should be returned
 
   Scenario: Retrieve user by UID
@@ -17,7 +17,7 @@ Feature: User Management
 
   Scenario: Retrieve user by display name
     Given the user is authenticated
-    When I search for a user with display name "John Doe"
+    When I search for a user with display name "Efrain"
     Then the user details should be returned
 
   Scenario: Retrieve user list
@@ -28,14 +28,14 @@ Feature: User Management
   Scenario: User sign up
     Given the user provides the following details:
       | email            | password    | userName |
-      | user@example.com | password123 | John Doe |
+      | danielo14ch@hotmail.com | password123 | Efrain |
     When the user signs up
     Then the user should be registered successfully
 
   Scenario: User log in
     Given the user provides the following credentials:
       | email            | password    |
-      | user@example.com | password123 |
+      | danielo14ch@hotmail.com | password123 |
     When the user logs in
     Then the user should be logged in successfully
 
@@ -56,7 +56,7 @@ Feature: User Management
 
   Scenario: User reauthentication
     Given the user is authenticated
-    When the user reauthenticates with email "user@example.com" and password "password123"
+    When the user reauthenticates with email "danielo14ch@hotmail.com" and password "password123"
     Then the user should be reauthenticated successfully
 
   Scenario: User updates password
@@ -65,6 +65,6 @@ Feature: User Management
     Then the password should be updated successfully
 
   Scenario: User sends password reset email
-    Given the user provides their email "user@example.com"
+    Given the user provides their email "danielo14ch@hotmail.com"
     When the user sends a password reset email
     Then a password reset email should be sent
