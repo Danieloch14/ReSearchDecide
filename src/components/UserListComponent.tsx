@@ -22,17 +22,19 @@ const UserListComponent = ({ users, groupId, onMembersAdded }: UserListComponent
     if (isSelected) {
       const updatedIds = selectedIds.filter((selectedId) => selectedId !== id);
       setSelectedIds(updatedIds);
-      console.log(updatedIds);
     } else {
       setSelectedIds([...selectedIds, id]);
-      console.log([...selectedIds, id]);
     }
   };
 
   const handleAddMembers = async () => {
     try {
       for (const id of selectedIds) {
-        await handleAddMember(id, groupId, 'memberRole');
+        await handleAddMember(id, groupId, 'member');
+        console.log('Member added successfully!',
+            `Member id: ${ id }`,
+            `Group id: ${ groupId }`,
+            `Role: member`);
       }
       console.log('Members added successfully!');
       setSelectedIds([]);

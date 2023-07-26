@@ -10,7 +10,6 @@ import { Group } from "../../model/Group";
 import { useUsers } from "../../hooks/use-users";
 import { ScrollView } from "native-base";
 import MembersListComponent from "../MembersListComponent";
-import { useMembersList } from "../../hooks/use-members-list";
 
 export type CreateGroupFormValues = {
   group: Group;
@@ -26,6 +25,9 @@ const buildValidationSchema = () => {
 };
 
 export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: any) => {
+
+  console.log('CUANDO YA SE CREA ME MANDA ESRTE ID: ', groupId);
+
   const initialValues = {
     group: {
       id: '',
@@ -53,10 +55,9 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: an
 
   const handleMembersAdded = () => {
     setMembersAdded(true);
-    setModalVisible(false); // Cierra el modal cuando los miembros se agregan correctamente
-  };
+    setModalVisible(false);
 
-  const members = useMembersList(groupId);
+  };
 
   return (
       <View style={ [styles.container, isWeb && { width: contentWidth }] }>
@@ -120,7 +121,13 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: an
                 <TextInput placeholder="Search..." style={ tw`flex-1` }/>
               </View>
 
-              <MembersListComponent members={ members }></MembersListComponent>
+              <ScrollView style={ tw`w-full` }>
+                <View style={ tw`w-full` }>
+                  <Text style={ tw`text-xl font-bold my-4 text-center` }>User list</Text>
+                  <MembersListComponent groupId={ groupId }></MembersListComponent>
+                </View>
+              </ScrollView>
+
 
             </View>
           </View>

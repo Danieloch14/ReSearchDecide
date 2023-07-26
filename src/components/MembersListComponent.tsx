@@ -1,68 +1,41 @@
-import React from 'react';
-import { FlatList, View, Text, TouchableOpacity } from 'react-native';
-import { CheckBox } from 'react-native-elements';
-import { User } from "../model/User";
-import icons from '../../assets/incons';
-
-import tw from "twrnc";
-import { StyleSheet } from "react-native";
-import { Pressable, Select } from "native-base";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import React, { useEffect } from 'react';
+import { Text, View, FlatList, TouchableOpacity } from 'react-native'; // Import TouchableOpacity
+import { useMembersList } from "../hooks/use-members-list";
 import { Member } from "../model/Member";
 
-type MemberListComponentProps = {
-  members: Member[]
-}
+type MembersListComponentProps = {
+  groupId: string;
+};
 
-const MembersListComponent = ({ members }: MemberListComponentProps) => {
-  const [selectedId, setSelectedId] = React.useState<any>(null);
+const MembersListComponent = ({ groupId }: MembersListComponentProps) => {
+  const [members, refreshMembers] = useMembersList(groupId);
 
-  const handleValueChange = (id: string) => {
-    const isSelected = selectedId === id;
-    if (isSelected) {
-      setSelectedId(null);
-      console.log(null);
-    } else {
-      setSelectedId(id);
-      console.log(id);
-    }
-  };
+  console.log('supuestamete todos los miembros', members);
+
+  useEffect(() => {
+    // Call the refreshMembers function whenever groupId changes
+    refreshMembers();
+  }, [groupId]);
 
   return (
       <View>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 8 }}>
+          <TouchableOpacity onPress={refreshMembers} style={{ padding: 8 }}>
+            <Text>Refresh</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8 }}>Members List</Text>
         <FlatList
-            data={ members }
-            renderItem={ ({ item }) => (
-                <View style={ tw`py-3 flex-row  items-center border-b border-gray-200` }>
-                  <View>
-                    <Text style={ tw`font-medium` }>{ item.userName }</Text>
-                  </View>
-                  {/*<Select>*/}
-                  {/*  <Select.Item label="Admin" value="Admin"/>*/}
-                  {/*  <Select.Item label="Member" value="Member"/>*/}
-                  {/*</Select>*/}
-                  <Pressable
-                      onPress={ () => handleValueChange(item.userId) }
-                  >
-                    <FontAwesomeIcon icon={ icons.trash } size={ 18 } color={ '#a8a8a8' }/>
-                  </Pressable>
+            data={members}
+            renderItem={({ item }) => (
+                <View style={{ paddingVertical: 4 }}>
+                  <Text>{item.userName}</Text>
                 </View>
-            ) }
-            keyExtractor={ ({ userId }) => userId }
+            )}
+            keyExtractor={(item) => item.userId}
         />
       </View>
   );
 };
 
 export default MembersListComponent;
-
-const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#146C94',
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-});

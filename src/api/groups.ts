@@ -70,30 +70,41 @@ export const saveGroup = async (group: Group): Promise<Group> => {
   throw new Error('User not found'); // Handle the case where user is not available
 };
 
-export const addMember = async(uid: string, idGroup: string, role: string): Promise<void> => {
-  // Verify if the "Group" collection exists
-  const collectionSnapshot = await memberCollection.limit(1).get();
-  const collectionExists = !collectionSnapshot.empty;
+export const addMember = async (uid: string, idGroup: string, role: string): Promise<string | null> => {
+  try {
+    // Verify if the "Group" collection exists
+    const collectionSnapshot = await memberCollection.limit(1).get();
+    const collectionExists = !collectionSnapshot.empty;
 
-  // If the collection does not exist, create an empty document for it
-  if (!collectionExists) {
-    await memberCollection.add({});
+    // If the collection does not exist, create an empty document for it
+    if (!collectionExists) {
+      await memberCollection.add({});
+    }
+
+    const user = await getDBUserByUid(uid);
+
+    if (user) {
+      const { uid: userUid, displayName, email } = user;
+
+      // Add the member to the collection and get the reference to the newly created document
+      const newMemberRef = await memberCollection.add({
+        uid: userUid,
+        id: idGroup,
+        displayName,
+        email,
+        role: role,
+      });
+
+      // Return the ID of the newly created member
+      return newMemberRef.id;
+    }
+
+    return null; // Return null if the user does not exist
+  } catch (error) {
+    console.error("Error adding member:", error);
+    return null; // Return null if an error occurred while adding the member
   }
-
-  const user = await getDBUserByUid(uid);
-
-  if (user) {
-    const { uid: userUid, displayName, email } = user;
-
-    await memberCollection.add({
-      uid: userUid,
-      id: idGroup,
-      displayName,
-      email,
-      role: role,
-    });
-  }
-}
+};
 
 export const getGroupsByUser = async (): Promise<Group[]> => {
   const user = getCurrentUser();
@@ -132,6 +143,8 @@ export const getGroupsByUser = async (): Promise<Group[]> => {
 export const getGroupMembers = async (groupId: string): Promise<Member[]> => {
   const memberQuerySnapshot = await memberCollection.where('id', '==', groupId).get();
   const members: Member[] = [];
+
+  console.log('member query snapshot: ',memberQuerySnapshot.docs);
 
   memberQuerySnapshot.forEach((memberDoc) => {
     const memberData = memberDoc.data();

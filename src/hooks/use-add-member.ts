@@ -16,8 +16,12 @@ export const useAddMember = (): [(uid: string, idGroup: string, role: string) =>
     setState({ isLoading: true, error: null });
 
     try {
-      await addMember(uid, idGroup, role);
+      const addedMember = await addMember(uid, idGroup, role);
+      if (addedMember !== null) {
+        console.log("Member added", addedMember);
+      }
       setState({ isLoading: false, error: null });
+      console.log("Member added");
     } catch (error: Error | any) {
       setState({ isLoading: false, error: error?.message });
     }
