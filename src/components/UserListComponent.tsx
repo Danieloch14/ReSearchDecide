@@ -1,9 +1,10 @@
 import React from 'react';
-import { FlatList, View, Text, TouchableOpacity } from 'react-native';
+import { FlatList, View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
 import { CheckBox } from 'react-native-elements';
 import { User } from "../model/User";
 import tw from "twrnc";
 import { StyleSheet } from "react-native";
+import { ScrollView } from "native-base";
 
 type UserListComponentProps = {
   users: User[]
@@ -26,32 +27,34 @@ const UserListComponent = ({ users }: UserListComponentProps) => {
   };
 
   return (
-      <View>
-        <FlatList
-            data={ users }
-            renderItem={ ({ item }) => (
-                <View style={ tw`py-1 flex-row justify-between items-center border-b border-gray-200` }>
-                  <View>
-                    <Text style={ tw`font-medium` }>{ item.displayName }</Text>
-                    <Text>{ item.email }</Text>
+      <SafeAreaView>
+        <View>
+          <FlatList
+              data={ users }
+              renderItem={ ({ item }) => (
+                  <View style={ tw`py-1 flex-row justify-between items-center border-b border-gray-200` }>
+                    <View>
+                      <Text style={ tw`font-medium` }>{ item.displayName }</Text>
+                      <Text>{ item.email }</Text>
+                    </View>
+                    <CheckBox
+                        title="Select"
+                        checked={ selectedIds.includes(item.uid) }
+                        onPress={ () => handleValueChange(item.uid) }
+                    />
                   </View>
-                  <CheckBox
-                      title=""
-                      checked={ selectedIds.includes(item.id.toString()) }
-                      onPress={ () => handleValueChange(item.id.toString()) }
-                  />
-                </View>
-            ) }
-            keyExtractor={ ({ id }) => id.toString() }
-        />
-        <TouchableOpacity
-            disabled={ selectedIds.length === 0 }
-            style={ [tw`rounded mt-8`, styles.button, selectedIds.length === 0 && styles.disabledButton] }
-            onPress={ () => console.log(selectedIds) }
-        >
-          <Text style={ tw`text-white text-center` }>Add members</Text>
-        </TouchableOpacity>
-      </View>
+              ) }
+              keyExtractor={ ({ uid }) => uid }
+          />
+          <TouchableOpacity
+              disabled={ selectedIds.length === 0 }
+              style={ [tw`rounded mt-8`, styles.button, selectedIds.length === 0 && styles.disabledButton] }
+              onPress={ () => console.log(selectedIds) }
+          >
+            <Text style={ tw`text-white text-center` }>Add members</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
   );
 };
 

@@ -34,20 +34,20 @@ const MembersListComponent = ({ users }: MemberListComponentProps) => {
             renderItem={ ({ item }) => (
                 <View style={ tw`py-3 flex-row  items-center border-b border-gray-200` }>
                   <View>
-                    <Text style={ tw`font-medium` }>{ item.name }</Text>
+                    <Text style={ tw`font-medium` }>{ item.displayName }</Text>
                   </View>
                   <Select>
-                    <Select.Item label="Admin" value="Admin" />
-                    <Select.Item label="Member" value="Member" />
+                    <Select.Item label="Admin" value="Admin"/>
+                    <Select.Item label="Member" value="Member"/>
                   </Select>
                   <Pressable
-                      onPress={ () => handleValueChange(item.id.toString()) }
+                      onPress={ () => handleValueChange(item.uid) }
                   >
-                    <FontAwesomeIcon icon={icons.trash} size={18} color={'#a8a8a8'} />
+                    <FontAwesomeIcon icon={ icons.trash } size={ 18 } color={ '#a8a8a8' }/>
                   </Pressable>
                 </View>
             ) }
-            keyExtractor={ ({ id }) => id.toString() }
+            keyExtractor={ ({ uid }) => uid }
         />
       </View>
   );

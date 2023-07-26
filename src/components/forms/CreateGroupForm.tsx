@@ -10,6 +10,7 @@ import { Group } from "../../model/Group";
 import MembersListComponent from "../MembersListComponent";
 import { User } from "../../model/User";
 import { useUsers } from "../../hooks/use-users";
+import { ScrollView } from "native-base";
 
 export type CreateGroupFormValues = {
   group: Group;
@@ -20,7 +21,6 @@ const buildValidationSchema = () => {
     group: Yup.object().shape({
       name: Yup.string().required('Name is required'),
       description: Yup.string().required('Description is required'),
-      members: Yup.array().min(1, 'At least one member is required'),
     }),
   });
 };
@@ -28,10 +28,8 @@ const buildValidationSchema = () => {
 export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
   const initialValues = {
     group: {
-      id: 0,
       name: '',
       description: '',
-      members: [],
     },
   };
   const handleSubmit = (values: CreateGroupFormValues) => {
@@ -101,7 +99,6 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
                 <TextInput placeholder="Search..." style={ tw`flex-1` }/>
               </View>
 
-              {/*<MembersListComponent users={ data }/>*/}
 
             </View>
           </View>
@@ -128,10 +125,12 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
                   onPress={ () => setModalVisible(!modalVisible) }>
                 <FontAwesomeIcon icon={ icons.close } style={ tw`text-white` } size={ 10 }/>
               </TouchableOpacity>
-              <View style={ tw`w-full` }>
-                <Text style={ tw`text-xl font-bold my-4 text-center` }>User list</Text>
-                <UserListComponent users={ users}/>
-              </View>
+              <ScrollView style={tw`w-full`}>
+                <View style={ tw`w-full` }>
+                  <Text style={ tw`text-xl font-bold my-4 text-center` }>User list</Text>
+                  <UserListComponent users={ users }/>
+                </View>
+              </ScrollView>
             </View>
           </View>
         </Modal>
@@ -196,8 +195,6 @@ const styles = StyleSheet.create({
     marginTop: 22,
     height: '100%',
     backgroundColor: 'rgba(51,51,51,0.5)',
-
-
   },
   modalView: {
     width: '100%',
