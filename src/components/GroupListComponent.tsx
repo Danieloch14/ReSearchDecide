@@ -22,7 +22,7 @@ export const GroupListComponent = ({ groups }: GroupListProps) => {
                   onPress={ () => setSelectedItem(item) }
                   isSelected={ selectedItem?.id === item.id }
               /> }
-          keyExtractor={ ({ id }) => id.toString() }
+          keyExtractor={ ({ id }) => id}
       />
     </SafeAreaView>
   </>);

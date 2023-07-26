@@ -5,14 +5,17 @@ import { User } from "../model/User";
 import tw from "twrnc";
 import { StyleSheet } from "react-native";
 import { ScrollView } from "native-base";
+import { useAddMember } from "../hooks/use-add-member";
 
 type UserListComponentProps = {
-  users: User[]
+  users: User[],
+  groupId: string,
+  onMembersAdded: () => void
 }
 
-const UserListComponent = ({ users }: UserListComponentProps) => {
+const UserListComponent = ({ users, groupId, onMembersAdded }: UserListComponentProps) => {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
-
+  const [handleAddMember, addMemberState] = useAddMember();
 
   const handleValueChange = (id: string) => {
     const isSelected = selectedIds.includes(id);
@@ -23,6 +26,20 @@ const UserListComponent = ({ users }: UserListComponentProps) => {
     } else {
       setSelectedIds([...selectedIds, id]);
       console.log([...selectedIds, id]);
+    }
+  };
+
+  const handleAddMembers = async () => {
+    try {
+      for (const id of selectedIds) {
+        await handleAddMember(id, groupId, 'memberRole');
+      }
+      console.log('Members added successfully!');
+      setSelectedIds([]);
+
+      onMembersAdded();
+    } catch (error) {
+      console.error('Error adding members:', error);
     }
   };
 
@@ -49,7 +66,7 @@ const UserListComponent = ({ users }: UserListComponentProps) => {
           <TouchableOpacity
               disabled={ selectedIds.length === 0 }
               style={ [tw`rounded mt-8`, styles.button, selectedIds.length === 0 && styles.disabledButton] }
-              onPress={ () => console.log(selectedIds) }
+              onPress={ () => handleAddMembers() }
           >
             <Text style={ tw`text-white text-center` }>Add members</Text>
           </TouchableOpacity>

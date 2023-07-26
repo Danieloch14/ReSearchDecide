@@ -1,6 +1,6 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
-import {getCurrentUser, getDBUserByUid} from './user';
+import { getCurrentUser, getDBUserByUid } from './user';
 import { Group } from "../model/Group";
 import { Member } from "../model/Member";
 
@@ -8,7 +8,33 @@ const db = firebase.firestore();
 const groupCollection = db.collection("groups");
 const memberCollection = db.collection("members");
 
-export const saveGroup = async (group: Group): Promise<void> => {
+// export const saveGroup = async (group: Group): Promise<void> => {
+//   const user = await getCurrentUser();
+//   // Verify if the "groups" collection exists
+//   const collectionSnapshot = await groupCollection.limit(1).get();
+//   const collectionExists = !collectionSnapshot.empty;
+//
+//   // If the collection does not exist, create an empty document for it
+//   if (!collectionExists) {
+//     await groupCollection.add({});
+//   }
+//
+//   if (user) {
+//     const { uid } = user;
+//
+//     const groupDocRef = await groupCollection.add({
+//       name: group.name,
+//       description: group.description
+//     });
+//
+//     const groupId = groupDocRef.id;
+//
+//     await addMember(uid, groupId, 'admin');
+//   }
+//
+// }
+
+export const saveGroup = async (group: Group): Promise<Group> => {
   const user = await getCurrentUser();
   // Verify if the "groups" collection exists
   const collectionSnapshot = await groupCollection.limit(1).get();
@@ -21,18 +47,28 @@ export const saveGroup = async (group: Group): Promise<void> => {
 
   if (user) {
     const { uid } = user;
-  
-    const groupDocRef = await groupCollection.add({
+
+    const groupData = {
       name: group.name,
-      description: group.description
-    });
-  
+      description: group.description,
+    };
+
+    const groupDocRef = await groupCollection.add(groupData);
     const groupId = groupDocRef.id;
-  
+
     await addMember(uid, groupId, 'admin');
+
+    // Fetch the newly created group document to get the complete group object with ID
+    const groupSnapshot = await groupDocRef.get();
+    return {
+      id: groupSnapshot.id,
+      name: groupSnapshot.data()?.name,
+      description: groupSnapshot.data()?.description,
+    };
   }
- 
-}
+
+  throw new Error('User not found'); // Handle the case where user is not available
+};
 
 export const addMember = async(uid: string, idGroup: string, role: string): Promise<void> => {
   // Verify if the "Group" collection exists
@@ -79,7 +115,7 @@ export const getGroupsByUser = async (): Promise<Group[]> => {
         const group: Group = {
           id: groupId,
           name: groupData.name,
-          description: groupData.description
+          description: groupData.description,
         };
         return group;
       }
@@ -98,11 +134,14 @@ export const getGroupMembers = async (groupId: string): Promise<Member[]> => {
   const members: Member[] = [];
 
   memberQuerySnapshot.forEach((memberDoc) => {
-    const memberData = memberDoc.data() as Member;
+    const memberData = memberDoc.data();
+
+    console.log('member doc data: ',memberDoc.data());
+
     const member: Member = {
-      userId: memberData.userId,
-      groupId: memberData.groupId,
-      userName: memberData.userName,
+      userId: memberData.uid,
+      groupId: memberData.id,
+      userName: memberData.displayName,
       email: memberData.email,
       role: memberData.role,
     };

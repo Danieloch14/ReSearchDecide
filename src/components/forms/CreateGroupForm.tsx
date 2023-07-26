@@ -7,10 +7,10 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import UserListComponent from '../UserListComponent';
 import { Group } from "../../model/Group";
-import MembersListComponent from "../MembersListComponent";
-import { User } from "../../model/User";
 import { useUsers } from "../../hooks/use-users";
 import { ScrollView } from "native-base";
+import MembersListComponent from "../MembersListComponent";
+import { useMembersList } from "../../hooks/use-members-list";
 
 export type CreateGroupFormValues = {
   group: Group;
@@ -25,9 +25,10 @@ const buildValidationSchema = () => {
   });
 };
 
-export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
+export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: any) => {
   const initialValues = {
     group: {
+      id: '',
       name: '',
       description: '',
     },
@@ -48,6 +49,15 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
   const [modalVisible, setModalVisible] = useState(false);
   const users = useUsers();
 
+  const [isMembersAdded, setMembersAdded] = useState(false);
+
+  const handleMembersAdded = () => {
+    setMembersAdded(true);
+    setModalVisible(false); // Cierra el modal cuando los miembros se agregan correctamente
+  };
+
+  const members = useMembersList(groupId);
+
   return (
       <View style={ [styles.container, isWeb && { width: contentWidth }] }>
         <View style={ tw`flex gap-4 bg-white py-3 px-2 mb-6` }>
@@ -62,7 +72,7 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
             />
           </View>
           { formik.touched.group?.name && formik.errors.group?.name && (
-              <Text style={ tw`text-red-500 mb-3` }>{ formik.errors.group.name }</Text>
+              <Text style={ tw`text-red-500 mb-1` }>{ formik.errors.group.name }</Text>
           ) }
 
           <View style={ tw`flex flex-row items-center bg-gray-100 p-2 pl-3 rounded gap-2` }>
@@ -77,6 +87,17 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
           { formik.touched.group?.description && formik.errors.group?.description && (
               <Text style={ tw`text-red-500` }>{ formik.errors.group.description }</Text>
           ) }
+
+          <TouchableOpacity
+              style={ [tw`rounded my-2`, styles.button] }
+              onPress={ () => formik.handleSubmit() }
+          >
+            <View style={ tw`flex-row items-center gap-2` }>
+              <FontAwesomeIcon icon={ icons.add } style={ tw`text-white` }/>
+              <Text style={ tw`text-white` }>{ buttonText }</Text>
+            </View>
+          </TouchableOpacity>
+
         </View>
 
         <View style={ styles.membersContainer }>
@@ -99,6 +120,7 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
                 <TextInput placeholder="Search..." style={ tw`flex-1` }/>
               </View>
 
+              <MembersListComponent members={ members }></MembersListComponent>
 
             </View>
           </View>
@@ -125,10 +147,10 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading }: any) => {
                   onPress={ () => setModalVisible(!modalVisible) }>
                 <FontAwesomeIcon icon={ icons.close } style={ tw`text-white` } size={ 10 }/>
               </TouchableOpacity>
-              <ScrollView style={tw`w-full`}>
+              <ScrollView style={ tw`w-full` }>
                 <View style={ tw`w-full` }>
                   <Text style={ tw`text-xl font-bold my-4 text-center` }>User list</Text>
-                  <UserListComponent users={ users }/>
+                  <UserListComponent users={ users } groupId={ groupId } onMembersAdded={ handleMembersAdded }/>
                 </View>
               </ScrollView>
             </View>

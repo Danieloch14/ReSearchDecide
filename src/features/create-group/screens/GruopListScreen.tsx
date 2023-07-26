@@ -1,49 +1,52 @@
-import { View } from "native-base";
-import React, { useState } from 'react'
-import tw from 'twrnc'
-import { StyleSheet, TextInput } from "react-native";
-import { GroupListComponent } from "../../../components/GroupListComponent";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import icons from "../../../../assets/incons";
-import useGroups from "../../../hooks/use-groups";
-
+import React, { useState } from 'react';
+import { View, TextInput, StyleSheet, Text } from 'react-native';
+import tw from 'twrnc';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import icons from '../../../../assets/incons';
+import useGroupsList from '../../../hooks/use-groups-list';
+import { GroupListComponent } from '../../../components/GroupListComponent';
 
 export const GroupListScreen = () => {
-  const groups = useGroups();
+  const { groups, loading } = useGroupsList();
+  console.log(groups);
   const [searchValue, setSearchValue] = useState('');
 
   const handleSearch = (value: string) => {
-    console.log(value);
     setSearchValue(value);
   };
 
   let filteredGroups = groups;
 
   if (searchValue !== '') {
-    filteredGroups = groups.filter((group) =>
+    filteredGroups = groups?.filter((group) =>
         group.name.toLowerCase().includes(searchValue.toLowerCase())
     );
   }
 
   return (
       <View>
-        <View style={ tw`flex flex-row items-center bg-gray-100  p-2 rounded gap-2 mb-3` }>
-          <FontAwesomeIcon icon={ icons.search } style={ styles.icon }/>
+        <View style={tw`flex flex-row items-center bg-gray-100 p-2 rounded gap-2 mb-3`}>
+          <FontAwesomeIcon icon={icons.search} style={styles.icon} />
           <TextInput
-              onChangeText={ handleSearch }
-              value={ searchValue }
+              onChangeText={handleSearch}
+              value={searchValue}
               placeholder="Search..."
-              style={ tw`flex-1` }
+              style={tw`flex-1`}
           />
         </View>
-        <GroupListComponent groups={ filteredGroups }/>
+        {loading ? (
+            <Text>Loading...</Text>
+        ) : filteredGroups.length > 0 ? (
+            <GroupListComponent groups={filteredGroups} />
+        ) : (
+            <Text>No groups found.</Text>
+        )}
       </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   icon: {
     color: '#000',
   },
-})
+});

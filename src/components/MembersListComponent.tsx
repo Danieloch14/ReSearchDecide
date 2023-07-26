@@ -8,12 +8,13 @@ import tw from "twrnc";
 import { StyleSheet } from "react-native";
 import { Pressable, Select } from "native-base";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { Member } from "../model/Member";
 
 type MemberListComponentProps = {
-  users: User[]
+  members: Member[]
 }
 
-const MembersListComponent = ({ users }: MemberListComponentProps) => {
+const MembersListComponent = ({ members }: MemberListComponentProps) => {
   const [selectedId, setSelectedId] = React.useState<any>(null);
 
   const handleValueChange = (id: string) => {
@@ -30,24 +31,24 @@ const MembersListComponent = ({ users }: MemberListComponentProps) => {
   return (
       <View>
         <FlatList
-            data={ users }
+            data={ members }
             renderItem={ ({ item }) => (
                 <View style={ tw`py-3 flex-row  items-center border-b border-gray-200` }>
                   <View>
-                    <Text style={ tw`font-medium` }>{ item.displayName }</Text>
+                    <Text style={ tw`font-medium` }>{ item.userName }</Text>
                   </View>
-                  <Select>
-                    <Select.Item label="Admin" value="Admin"/>
-                    <Select.Item label="Member" value="Member"/>
-                  </Select>
+                  {/*<Select>*/}
+                  {/*  <Select.Item label="Admin" value="Admin"/>*/}
+                  {/*  <Select.Item label="Member" value="Member"/>*/}
+                  {/*</Select>*/}
                   <Pressable
-                      onPress={ () => handleValueChange(item.uid) }
+                      onPress={ () => handleValueChange(item.userId) }
                   >
                     <FontAwesomeIcon icon={ icons.trash } size={ 18 } color={ '#a8a8a8' }/>
                   </Pressable>
                 </View>
             ) }
-            keyExtractor={ ({ uid }) => uid }
+            keyExtractor={ ({ userId }) => userId }
         />
       </View>
   );

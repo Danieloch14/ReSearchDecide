@@ -1,26 +1,28 @@
 import { useEffect, useState } from 'react';
-import { getGroups } from '../api/groups';
+import { getGroupsByUser } from '../api/groups';
 import { Group } from "../model/Group";
 
-
-const useGroups = () => {
+const useGroupsList = () => {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const groupsData = await getGroups();
+        const groupsData = await getGroupsByUser();
         setGroups(groupsData);
       } catch (error) {
         console.log(error);
         setGroups([]);
+      } finally {
+        setLoading(false); // Mark the loading process as complete, regardless of success or error.
       }
     };
 
     fetchGroups().then();
   }, []);
 
-  return groups;
+  return { groups, loading };
 };
 
-export default useGroups;
+export default useGroupsList;
