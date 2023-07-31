@@ -17,8 +17,9 @@ import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { faPeopleGroup } from "@fortawesome/free-solid-svg-icons";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import { faClose} from "@fortawesome/free-solid-svg-icons";
-import { faTrash} from "@fortawesome/free-solid-svg-icons";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 
 
 library.add(faMailBulk, faLock, faEnvelope);
@@ -43,7 +44,8 @@ export default {
   peopleGroup: faPeopleGroup,
   search: faSearch,
   close: faClose,
-    trash: faTrash
+  trash: faTrash,
+  refresh: faRefresh
 
 
 }

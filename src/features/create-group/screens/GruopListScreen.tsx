@@ -5,10 +5,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import icons from '../../../../assets/incons';
 import useGroupsList from '../../../hooks/use-groups-list';
 import { GroupListComponent } from '../../../components/GroupListComponent';
+import { ActivityIndicatorComponent } from "../../../components/util/ActivityIndicatorComponent";
 
 export const GroupListScreen = () => {
   const { groups, loading } = useGroupsList();
-  console.log(groups);
+
   const [searchValue, setSearchValue] = useState('');
 
   const handleSearch = (value: string) => {
@@ -35,11 +36,11 @@ export const GroupListScreen = () => {
           />
         </View>
         {loading ? (
-            <Text>Loading...</Text>
+            <ActivityIndicatorComponent isLoading={loading}/>
         ) : filteredGroups.length > 0 ? (
             <GroupListComponent groups={filteredGroups} />
         ) : (
-            <Text>No groups found.</Text>
+            <Text style={tw`text-red-500`}>No groups found.</Text>
         )}
       </View>
   );

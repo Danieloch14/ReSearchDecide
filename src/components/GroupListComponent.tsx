@@ -3,7 +3,6 @@ import { FlatList } from "native-base";
 import { Group } from "../model/Group";
 import { GroupItemComponent } from "./GroupItemComponent";
 import React from "react";
-import tw from "twrnc";
 
 type GroupListProps = {
   groups: Group[]

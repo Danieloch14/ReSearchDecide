@@ -3,9 +3,11 @@ import { View, Text, Link } from 'native-base';
 import tw from 'twrnc';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useLogIn } from "../hooks/use-log-in";
-import LogInForm from "../../../components/forms/LogInForm";
+import LogInForm, { LoginFormValues } from "../../../components/forms/LogInForm";
 import { useNavigation } from '@react-navigation/native';
 import { SignUpScreen } from "../../sign-up/screens/SignUpScreen";
+import { ActivityIndicatorComponent } from "../../../components/util/ActivityIndicatorComponent";
+import ErrorMessage from "../../../components/util/ErrorMessage";
 
 export const LogInScreen = () => {
 
@@ -15,12 +17,15 @@ export const LogInScreen = () => {
     navigation.navigate('SignUpScreen' as keyof typeof SignUpScreen);
   };
 
-  // const handleLinkPressOnResetPassword = () => {
-  // navigation.navigate('ResetPasswordScreen' as keyof typeof ResetPasswordScreen);
-  // }
-
-
   const [logIn, { isLoading, error }] = useLogIn();
+
+  const handleLogIn = async (values: LoginFormValues) => {
+    try {
+      await logIn(values);
+    } catch (e) {
+      console.log(error);
+    }
+  }
 
   return (
       <View
@@ -29,10 +34,12 @@ export const LogInScreen = () => {
             tw.style('py-7 px-5 bg-white')
           ] }
       >
+        { isLoading && <ActivityIndicatorComponent isLoading={ isLoading }/> }
+        { error && <ErrorMessage error={ error }/> }
         <Text style={ tw.style('text-center font-bold text-2xl mb-10') }>
           Log In
         </Text>
-        <LogInForm onSubmit={ logIn } buttonText={ "Log in" } isLoading={ isLoading }/>
+        <LogInForm onSubmit={ handleLogIn } buttonText={ "Log in" } isLoading={ isLoading }/>
 
         <View style={ tw`flex flex-row justify-center mt-5` }>
           <Text style={ tw`text-gray-500` }>Forgot your </Text>

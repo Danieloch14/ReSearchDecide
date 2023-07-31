@@ -4,8 +4,9 @@ import { CheckBox } from 'react-native-elements';
 import { User } from "../model/User";
 import tw from "twrnc";
 import { StyleSheet } from "react-native";
-import { ScrollView } from "native-base";
 import { useAddMember } from "../hooks/use-add-member";
+import { ActivityIndicatorComponent } from "./util/ActivityIndicatorComponent";
+import ErrorMessage from "./util/ErrorMessage";
 
 type UserListComponentProps = {
   users: User[],
@@ -65,6 +66,11 @@ const UserListComponent = ({ users, groupId, onMembersAdded }: UserListComponent
               ) }
               keyExtractor={ ({ uid }) => uid }
           />
+
+          { addMemberState.isLoading && <ActivityIndicatorComponent isLoading={ addMemberState.isLoading }/> }
+
+          { addMemberState.error && <ErrorMessage error={ addMemberState.error }/> }
+
           <TouchableOpacity
               disabled={ selectedIds.length === 0 }
               style={ [tw`rounded mt-8`, styles.button, selectedIds.length === 0 && styles.disabledButton] }

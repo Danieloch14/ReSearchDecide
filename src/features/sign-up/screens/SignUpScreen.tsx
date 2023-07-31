@@ -6,6 +6,8 @@ import { ScrollView } from "native-base";
 import { Platform, StyleSheet, View } from "react-native";
 import { useSignUp } from "../hooks/use-sign-up";
 import tw from "twrnc";
+import { ActivityIndicatorComponent } from "../../../components/util/ActivityIndicatorComponent";
+import ErrorMessage from "../../../components/util/ErrorMessage";
 
 export const SignUpScreen = () => {
   const [signUp, { isLoading, error }] = useSignUp();
@@ -20,6 +22,8 @@ export const SignUpScreen = () => {
                   <AppBanner />
                 </View>
                 <View style={{ flex: 1 }}>
+                  { isLoading && <ActivityIndicatorComponent isLoading={ isLoading }/> }
+                  { error && <ErrorMessage error={ error }/> }
                   <SignUpForm onSubmit={signUp} buttonText={'Create account'} isLoading={isLoading} />
                 </View>
               </View>

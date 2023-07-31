@@ -17,11 +17,11 @@ export const useMembersList = (groupId: string): [Member[], () => void] => {
 
   useEffect(() => {
     fetchGroupMembers().then();
-  }, [groupId]); // Only fetch members when groupId changes
+  }, [groupId]);
 
-  const refreshMembers = () => {
-    fetchGroupMembers().then(); // Manually fetch members again
+  const refreshMembers = async () => {
+    await fetchGroupMembers();
   };
 
-  return [members, refreshMembers]; // Return members and refresh function as an array
+  return [members, refreshMembers];
 };

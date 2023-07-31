@@ -61,8 +61,9 @@ export const SignUpForm = ({ onSubmit, buttonText, isLoading }: {
   return (
       <View style={ [
         styles.shadow, styles.border,
-        tw.style('py-7 px-5 bg-white')
+        tw.style('py-7 px-5 bg-white mt-1')
       ] }>
+
 
         <Text style={ tw.style('text-center font-bold text-2xl mb-10') }>
           Sign Up

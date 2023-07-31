@@ -10,6 +10,7 @@ import { Group } from "../../model/Group";
 import { useUsers } from "../../hooks/use-users";
 import { ScrollView } from "native-base";
 import MembersListComponent from "../MembersListComponent";
+import { useMembersList } from "../../hooks/use-members-list";
 
 export type CreateGroupFormValues = {
   group: Group;
@@ -26,7 +27,6 @@ const buildValidationSchema = () => {
 
 export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: any) => {
 
-  console.log('CUANDO YA SE CREA ME MANDA ESRTE ID: ', groupId);
 
   const initialValues = {
     group: {
@@ -38,6 +38,7 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: an
   const handleSubmit = (values: CreateGroupFormValues) => {
     onSubmit(values);
   };
+
   const formik = useFormik({
     initialValues,
     onSubmit: handleSubmit,
@@ -50,13 +51,14 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: an
 
   const [modalVisible, setModalVisible] = useState(false);
   const users = useUsers();
+  const members = useMembersList(groupId);
+  const isGroupCreated = groupId !== '';
 
   const [isMembersAdded, setMembersAdded] = useState(false);
 
   const handleMembersAdded = () => {
     setMembersAdded(true);
     setModalVisible(false);
-
   };
 
   return (
@@ -104,11 +106,10 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: an
         <View style={ styles.membersContainer }>
           <View style={ [isWeb && { width: 400 }, !isWeb && tw`w-full`] }>
             <View style={ [styles.shadow, styles.border, tw.style('py-3 px-5 bg-white')] }>
-              <Text style={ tw`text-xl font-bold mb-2` }>Members</Text>
-
               <TouchableOpacity
-                  style={ [tw`rounded my-3`, styles.button] }
+                  style={ [tw`rounded my-3`, styles.button, isGroupCreated ? null : styles.disabledButton] }
                   onPress={ () => setModalVisible(true) }
+                  disabled={ !isGroupCreated } // Desactiva el botón si el grupo no ha sido creado
               >
                 <View style={ tw`flex-row items-center gap-2` }>
                   <FontAwesomeIcon icon={ icons.add } style={ tw`text-white` }/>
@@ -116,18 +117,12 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: an
                 </View>
               </TouchableOpacity>
 
-              <View style={ tw`flex flex-row items-center bg-gray-100  p-2 rounded gap-2 mb-3` }>
-                <FontAwesomeIcon icon={ icons.search } style={ styles.icon }/>
-                <TextInput placeholder="Search..." style={ tw`flex-1` }/>
-              </View>
-
               <ScrollView style={ tw`w-full` }>
                 <View style={ tw`w-full` }>
                   <Text style={ tw`text-xl font-bold my-4 text-center` }>User list</Text>
-                  <MembersListComponent groupId={ groupId }></MembersListComponent>
+                  { isGroupCreated && (<MembersListComponent groupId={ groupId }/>) }
                 </View>
               </ScrollView>
-
 
             </View>
           </View>
@@ -143,6 +138,7 @@ export const CreateGroupForm = ({ onSubmit, buttonText, isLoading, groupId }: an
             } }>
           <View style={ styles.centeredView }>
             <View style={ [styles.modalView, isWeb && { width: contentWidth }] }>
+
               <TouchableOpacity
                   style={ {
                     ...tw.style('rounded-full bg-red-500'),
@@ -207,6 +203,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     backgroundColor: '#146C94',
+  },
+  disabledButton: {
+    backgroundColor: '#CCCCCC', // Cambiar por el color deseado para el botón deshabilitado
   },
   membersContainer: {
     width: '100%',
