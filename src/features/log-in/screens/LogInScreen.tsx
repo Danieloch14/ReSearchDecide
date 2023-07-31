@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SignUpScreen } from "../../sign-up/screens/SignUpScreen";
 import { ActivityIndicatorComponent } from "../../../components/util/ActivityIndicatorComponent";
 import ErrorMessage from "../../../components/util/ErrorMessage";
+import { ForgotPasswordScreen } from "../../forgot-password/screens/ForgotPasswordScreen";
 
 export const LogInScreen = () => {
 
@@ -27,6 +28,10 @@ export const LogInScreen = () => {
     }
   }
 
+  function handleLinkPressOnForgotPassword() {
+    navigation.navigate('ForgotPasswordScreen' as keyof typeof ForgotPasswordScreen);
+  }
+
   return (
       <View
           style={ [
@@ -43,7 +48,9 @@ export const LogInScreen = () => {
 
         <View style={ tw`flex flex-row justify-center mt-5` }>
           <Text style={ tw`text-gray-500` }>Forgot your </Text>
-          <TouchableOpacity>
+          <TouchableOpacity
+              onPress={ handleLinkPressOnForgotPassword }
+          >
             <Text style={ tw.style('text-blue-500') }>Password?</Text>
           </TouchableOpacity>
         </View>
