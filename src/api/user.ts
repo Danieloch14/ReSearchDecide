@@ -2,6 +2,7 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { User } from '../model/User';
+import firestore = firebase.firestore;
 
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
 
@@ -159,3 +160,26 @@ export const updatePassword = ({ password = '' }: {password: string}): Promise<v
 
 export const sendPasswordReset = ({ email = '' }: {email: string}): Promise<void> =>
     firebase.auth().sendPasswordResetEmail(email);
+
+export const updateDisplayName = async ({ displayName }: {displayName: string}): Promise<void> => {
+  const user = getUser();
+
+  if (!user) {
+    return Promise.reject('No user found');
+  }
+
+  try {
+    await user.updateProfile(
+        { displayName: displayName }
+    );
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    throw new Error('Error updating profile');
+  }
+};
+
+
+
+
+

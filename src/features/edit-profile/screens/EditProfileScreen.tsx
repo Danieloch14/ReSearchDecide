@@ -1,24 +1,29 @@
 import { View, Text } from "native-base";
 import { GuestLayout } from "../../../components/layout/GuestLayout";
-import { getCurrentUser, getUser, signUp } from "../../../api/user";
+import { getCurrentUser } from "../../../api/user";
 import tw from "twrnc";
 import { AppBanner } from "../../../components/util/AppBanner";
-import SignUpForm from "../../../components/forms/SignUpForm";
-import React from "react";
+import React, { useState } from "react";
 import { Platform } from "react-native";
-import { EditProfileForm } from "../../../components/forms/EditProfileForm";
-import { useSignUp } from "../../sign-up/hooks/use-sign-up";
+import { EditProfileForm, EditProfileFormValues } from "../../../components/forms/EditProfileForm";
+import { useUpdateDisplayName } from "../hooks/use-change-displayname";
+import { ActivityIndicatorComponent } from "../../../components/util/ActivityIndicatorComponent";
+import ErrorMessage from "../../../components/util/ErrorMessage";
 
 export const EditProfileScreen = () => {
-
   const user = getCurrentUser();
   const isWeb = Platform.OS === 'web';
   const textSize = isWeb ? 'text-5xl' : 'text-3xl';
   const textSizeSub = isWeb ? 'text-4xl' : 'text-2xl';
   const textCenter = isWeb ? '' : 'text-center';
 
-  const [signUp, { isLoading, error }] = useSignUp();
+  const [displayNameChanged, setDisplayNameChanged] = useState(false); // Estado para controlar el mensaje de cambio exitoso
+  const [updateDisplayName, isLoading, error] = useUpdateDisplayName();
 
+  const handleEditProfileSubmit = async (values: EditProfileFormValues) => {
+    await updateDisplayName(values.userName);
+    setDisplayNameChanged(true);
+  };
 
   return (
       <GuestLayout>
@@ -30,7 +35,13 @@ export const EditProfileScreen = () => {
                     style={ tw`${ textCenter } font-medium text-gray-500 mb-10 ${ textSizeSub }` }>{ user?.email }</Text>
               </View>
               <View style={ { flex: 1 } }>
-                <EditProfileForm onSubmit={ signUp } isLoading={ isLoading } buttonText={ 'Edit profile' }/>
+                { isLoading && <ActivityIndicatorComponent isLoading={ isLoading }/> }
+                { error && <ErrorMessage error={ error }/> }
+                { displayNameChanged && (
+                    <Text style={ tw`text-green-500 font-bold mb-2 text-center` }>User name updated
+                      successfully!</Text>
+                ) }
+                <EditProfileForm onSubmit={ handleEditProfileSubmit } isLoading={ false }/>
               </View>
             </View>
         ) : (
@@ -40,4 +51,4 @@ export const EditProfileScreen = () => {
         ) }
       </GuestLayout>
   );
-}
+};
