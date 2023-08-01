@@ -153,7 +153,7 @@ export const EditProfileForm = ({ onSubmit, isLoading }: {
         <TouchableOpacity
             onPress={ () => formik.handleSubmit() }
             disabled={ isLoading }
-            style={ [styles.buttonLogin, tw`p-2 rounded mt-8 mb-2`] }
+            style={ [styles.button, tw`p-2 rounded mt-8 mb-2`] }
         >
           <Text
               style={ tw`text-center text-white font-bold` }>{ changePassword ? "Change password" : "Edit profile" }</Text>
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 0,
   },
-  buttonLogin: {
+  button: {
     backgroundColor: '#146C94',
     color: '#fff',
   },

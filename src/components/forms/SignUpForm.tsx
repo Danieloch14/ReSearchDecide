@@ -136,7 +136,7 @@ export const SignUpForm = ({ onSubmit, buttonText, isLoading }: {
         <TouchableOpacity
             onPress={ () => formik.handleSubmit() }
             disabled={ isLoading }
-            style={ [styles.buttonLogin, tw`p-2 rounded my-8`] }
+            style={ [styles.button, tw`p-2 rounded my-8`] }
         >
           <Text style={ tw`text-center text-white font-bold` }>{ buttonText }</Text>
         </TouchableOpacity>
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     borderWidth: 0,
   },
-  buttonLogin: {
+  button: {
     backgroundColor: '#146C94',
     color: '#fff',
   },

@@ -6,6 +6,8 @@ import icons from '../../../../assets/incons';
 import useGroupsList from '../../../hooks/use-groups-list';
 import { GroupListComponent } from '../../../components/GroupListComponent';
 import { ActivityIndicatorComponent } from "../../../components/util/ActivityIndicatorComponent";
+import UserListComponent from "../../../components/UserListComponent";
+import { ScrollView } from "native-base";
 
 export const GroupListScreen = () => {
   const { groups, loading } = useGroupsList();
@@ -26,22 +28,26 @@ export const GroupListScreen = () => {
 
   return (
       <View>
-        <View style={tw`flex flex-row items-center bg-gray-100 p-2 rounded gap-2 mb-3`}>
-          <FontAwesomeIcon icon={icons.search} style={styles.icon} />
+        <View style={ tw`flex flex-row items-center bg-gray-100 p-2 rounded gap-2 mb-3` }>
+          <FontAwesomeIcon icon={ icons.search } style={ styles.icon }/>
           <TextInput
-              onChangeText={handleSearch}
-              value={searchValue}
+              onChangeText={ handleSearch }
+              value={ searchValue }
               placeholder="Search..."
-              style={tw`flex-1`}
+              style={ tw`flex-1` }
           />
         </View>
-        {loading ? (
-            <ActivityIndicatorComponent isLoading={loading}/>
+        { loading ? (
+            <ActivityIndicatorComponent isLoading={ loading }/>
         ) : filteredGroups.length > 0 ? (
-            <GroupListComponent groups={filteredGroups} />
+            <ScrollView style={ tw`w-full` }>
+              <View style={ tw`w-full` }>
+                <GroupListComponent groups={ filteredGroups }/>
+              </View>
+            </ScrollView>
         ) : (
-            <Text style={tw`text-red-500`}>No groups found.</Text>
-        )}
+            <Text style={ tw`text-red-500` }>No groups found.</Text>
+        ) }
       </View>
   );
 };

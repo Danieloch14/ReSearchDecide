@@ -59,7 +59,7 @@ export const EmailForm = ({ isLoading, onSubmit }: {
         <TouchableOpacity
             onPress={ () => formik.handleSubmit() }
             disabled={ isLoading }
-            style={ [styles.buttonLogin, tw`p-2 rounded my-4`] }
+            style={ [styles.button, tw`p-2 rounded my-4`] }
         >
           <Text style={ tw`text-center text-white font-bold` }> Reset password </Text>
         </TouchableOpacity>
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 0,
   },
-  buttonLogin: {
+  button: {
     backgroundColor: '#146C94',
     color: '#fff',
   },
