@@ -170,7 +170,6 @@ export const deleteGroupById = async (groupId: string): Promise<void> => {
 }
 
 export const deleteMemberById = async(memberId: string, groupId: string): Promise<void> => {
-  const memberCollection = groupCollection.doc(groupId).collection("members");
   await memberCollection.doc(memberId).delete();
 }
 
