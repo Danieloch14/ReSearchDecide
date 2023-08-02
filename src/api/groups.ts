@@ -152,6 +152,7 @@ export const getGroupMembers = async (groupId: string): Promise<Member[]> => {
     console.log('member doc data: ',memberDoc.data());
 
     const member: Member = {
+      id: memberDoc.id,
       userId: memberData.uid,
       groupId: memberData.id,
       userName: memberData.displayName,
