@@ -1,126 +1,71 @@
-import { expect } from 'chai';
-import { getUser, saveNewUserDB, getDBUserByEmail, getDBUserByUid, getDBUserByDisplayName, getDBUserList, signUp, logIn, sendVerification, signOut, reload, reauthenticate, updatePassword, sendPasswordReset } from '../../api/user';
+import { getUser, saveNewUserDB, getDBUserByEmail, getDBUserByUid, getDBUserByDisplayName, getDBUserList, signUp, logIn, sendVerification, signOut, reload, reauthenticate, updatePassword, sendPasswordReset, getCurrentUser } from '../../api/user';
 const { Given, When, Then } = require('cucumber');
 import { defineFeature, loadFeature } from 'jest-cucumber';
 const feature = loadFeature('../../../../../SITDECG/ReSearchDecide/src/Tests/__features__/users.feature');
+import { SignUpFormValues } from '../../components/forms/SignUpForm';
 import firebase from 'firebase/compat/app';
-import 'firebase/firestore';
-import admin from "firebase-admin";
-import { initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+const { expect } = require('chai');
 
 
-
-import {
-    FIREBASE_API_KEY,
-    FIREBASE_AUTH_DOMAIN,
-    FIREBASE_PROJECT_ID,
-    FIREBASE_STORAGE_BUCKET,
-    FIREBASE_MESSAGING_SENDER_ID,
-    FIREBASE_APP_ID,
-    GOOGLE_APPLICATION_CREDENTIALS,
-} from '@env'
-import { User } from '../../model/User';
-
-console.log('FIREBASE_API_KEY', FIREBASE_API_KEY)
-console.log('FIREBASE_AUTH_DOMAIN', FIREBASE_AUTH_DOMAIN)
-console.log('FIREBASE_PROJECT_ID', FIREBASE_PROJECT_ID)
-console.log('FIREBASE_STORAGE_BUCKET', FIREBASE_STORAGE_BUCKET)
-console.log('FIREBASE_MESSAGING_SENDER_ID', FIREBASE_MESSAGING_SENDER_ID)
-console.log('FIREBASE_APP_ID', FIREBASE_APP_ID)
-console.log('GOOGLE_APPLICATION_CREDENTIALS', GOOGLE_APPLICATION_CREDENTIALS)
-
-const firebaseConfig = {
-    apiKey: FIREBASE_API_KEY,
-    authDomain: FIREBASE_AUTH_DOMAIN,
-    projectId: FIREBASE_PROJECT_ID,
-    storageBucket: FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
-    appId: FIREBASE_APP_ID,
-    google: GOOGLE_APPLICATION_CREDENTIALS,
-   
-}
-
-firebase.initializeApp(firebaseConfig)
-var serviceAccount = require(GOOGLE_APPLICATION_CREDENTIALS);
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-});
-
-
-const firestore = getFirestore();
-async function deleteAllUsers() {
-    try {
-        const listUsersResult = await admin.auth().listUsers();
-
-        listUsersResult.users.forEach(async (userRecord) => {
-            await admin.auth().deleteUser(userRecord.uid);
-        });
-
-        console.log("Usuarios eliminados exitosamente.");
-    } catch (error) {
-        console.error("Error al eliminar usuarios:", error);
-    }
-}
-async function deleteAllCollections() {
-    try {
-        const collections = await firestore.listCollections();
-
-        for (const collection of collections) {
-            await deleteCollection(collection);
-        }
-
-        console.log('Todas las colecciones eliminadas exitosamente.');
-    } catch (error) {
-        console.error('Error al eliminar colecciones:', error);
-    }
-}
-
-async function deleteCollection(collection: FirebaseFirestore.CollectionReference<FirebaseFirestore.DocumentData>) {
-    const documents = await collection.listDocuments();
-
-    for (const document of documents) {
-        await document.delete();
-    }
-}
-
-// deleteAllCollections();
-deleteAllUsers();
 defineFeature(feature, (test) => {
-
+    let userCredentials: firebase.auth.UserCredential;
 
     beforeEach(() => {
-        // Reset the user before each scenario
-        // resetUser(); 
+
 
 
     });
 
     test('Save new user to the database', ({ given, when, then }) => {
 
-        let newUser;
+
+        let newUser: SignUpFormValues;
         given('the user is not authenticated', () => {
-            // Implementation of the user authentication step
-            // const user = getUser();
-    
 
         });
 
-        when(/^a new user with email "(.*)" and password "(.*)" signs up with username "(.*)"$/, async (arg0: string, arg1: string, arg2: string) => {
-            newUser = { email: arg0, password: arg1, userName: arg2  };
-            const user = signUp(newUser);
+        when(/^a new user with email "(.*)" and password "(.*)" signs up with username "(.*)"$/, 
+        async (email, password, displayName) => {
+            newUser = {
+                email: email,
+                password: password,
+                userName: displayName,
+                confirmPassword: password,
+            }
+            await signUp(newUser);
         });
 
-        then('the user should be saved to the database', () => {
-            // const user = getUser();
-            // console.log('user', user);
-            // expect(user).to.exist;
-            const users: Promise<User[]> = getDBUserList();
-            console.log('users', users);
-            // const user = getDBUserByEmail(newUser.email);
+        then('the user should be saved to the database', async () => {
+            const user = await getDBUserByEmail(newUser.email);
+            expect(user).to.exist;
+            expect(user.email).to.equal(newUser.email);
+            expect(user.displayName).to.equal(newUser.userName);
         });
 
     });
+
+    test('User sends verification email', ({ given, when, then }) => {
+        let verificationEmailSent = false; // Variable para controlar si se envió el correo
+        given('the user is authenticated', () => {
+
+        });
+
+        when('the user sends a verification email', async () => {
+            try {
+                await sendVerification();
+                verificationEmailSent = true; 
+            } catch (error) {
+                verificationEmailSent = false;
+            }
+
+
+        });
+
+        then('a verification email should be sent to the user', () => {
+            expect(verificationEmailSent).to.be.true;
+        });
+    });
+
 
     test('Retrieve user by email', ({ given, when, then }) => {
         given('the user is authenticated', () => {
@@ -197,46 +142,39 @@ defineFeature(feature, (test) => {
 
 
     test('User log in', ({ given, when, then }) => {
-        given('the user provides the following credentials:', (table) => {
-
+        given('the user provides the following credentials:', async (table) => {
+            const { email, password } = table[0];
+            // Set up user credentials
+            userCredentials = await logIn({ email, password });
         });
 
         when('the user logs in', () => {
-
+            // User credentials are set up in the 'given' step
         });
 
         then('the user should be logged in successfully', () => {
-
+            expect(userCredentials).to.exist;
+            expect(userCredentials.user).to.exist;
+            // Add more assertions as needed
         });
     });
-
-
-    test('User sends verification email', ({ given, when, then }) => {
-        given('the user is authenticated', () => {
-
-        });
-
-        when('the user sends a verification email', () => {
-
-        });
-
-        then('a verification email should be sent to the user', () => {
-
-        });
-    });
-
 
     test('User signs out', ({ given, when, then }) => {
         given('the user is authenticated', () => {
-
+            // You might need to log in the user here
         });
 
-        when('the user signs out', () => {
-
+        when('the user signs out', async () => {
+            try {
+                await signOut();
+            } catch (error) {
+                // Handle errors if needed
+            }
         });
 
-        then('the user should be logged out successfully', () => {
-
+        then('the user should be logged out successfully', async () => {
+            const currentUser = getCurrentUser();
+            expect(currentUser).to.be.null;
         });
     });
 
@@ -303,6 +241,14 @@ defineFeature(feature, (test) => {
 
 });
 
+
+
+// function beforeEach(arg0: () => void) {
+//     throw new Error('Function not implemented.');
+// }
+// function beforeEach(arg0: () => void) {
+//     throw new Error('Function not implemented.');
+// }
 //     Given('the user is authenticated', () => {
 //         // Implementation of the user authentication step
 //     });

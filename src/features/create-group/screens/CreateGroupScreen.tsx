@@ -11,7 +11,7 @@ import { Group } from "../../../model/Group";
 
 export const CreateGroupScreen = () => {
   const [isGroupCreated, setGroupCreated] = useState(false);
-  const [createdGroup, setCreatedGroup] = useState<Group>(); // Cambiar a string en lugar de null
+  const [createdGroup, setCreatedGroup] = useState<Group | undefined>(); // Cambiar a string en lugar de null
   const [handleCreateGroup, createGroupState] = useCreateGroup();
 
   const handleSubmit = async (values: CreateGroupFormValues) => {
@@ -47,7 +47,7 @@ export const CreateGroupScreen = () => {
             onSubmit={ handleSubmit }
             buttonText={ 'Create group' }
             isLoading={ createGroupState.isLoading }
-            groupId={ createdGroup }
+            group={ createdGroup }
         />
       </AuthenticatedLayout>
   );
