@@ -26,5 +26,5 @@ const firebaseConfig = {
   appId: FIREBASE_APP_ID,
 }
 
-firebase.initializeApp(firebaseConfig)
+firebase.initializeApp(firebaseConfig);
 

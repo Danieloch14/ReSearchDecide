@@ -2,14 +2,26 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { User } from '../model/User';
+import firestore = firebase.firestore;
 import { Member } from '../model/Member';
 
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
 
 
-export const getCurrentUser = (): firebase.User | null => {
-  return firebase.auth().currentUser;
+export const getCurrentUser = (): Promise<firebase.User | null> => {
+  return new Promise((resolve) => {
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      unsubscribe();
+      console.log('User changed:', user);
+      if (user) {
+        resolve(user);
+      } else {
+        resolve(null);
+      }
+    });
+  });
 };
+
 
 export const deleteDBUser = async (email: string): Promise<void> => {
   const userRef = firebase.firestore().collection('users').where('email', '==', email);
@@ -178,7 +190,7 @@ export const updateDisplayName = async ({ displayName }: {displayName: string}):
   }
 };
 
-export const updateMemberVote = async ( uid: string, newVote: boolean): Promise<void> => {
+export const updateMemberVote = async (uid: string, newVote: boolean): Promise<void> => {
   try {
     const memberRef = firebase.firestore().collection('members').doc(uid);
     await memberRef.update({ vote: newVote });

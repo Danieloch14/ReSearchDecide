@@ -83,7 +83,7 @@ export const addMember = async (uid: string, idGroup: string, role: string): Pro
 };
 
 export const getGroupsByUser = async (): Promise<Group[]> => {
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
   console.log('user: ',user);
 
   if (user) {

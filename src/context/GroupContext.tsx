@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Group } from "../model/Group";
-import useGroupsList from '../hooks/use-groups-list'; // Importa tu hook de Firebase
+import useGroupsList from '../hooks/use-groups-list';
+import firebase from "firebase/app"; // Importa tu hook de Firebase
 
 type GroupsContextType = {
   groups: Group[];
@@ -11,6 +12,7 @@ type GroupsContextType = {
 const GroupsContext = createContext<GroupsContextType | undefined>(undefined);
 
 export const GroupContextProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+
   const { groups: firebaseGroups, loading } = useGroupsList();
   console.log('firebaseGroups', firebaseGroups);
 
