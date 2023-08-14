@@ -2,15 +2,13 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { User } from '../model/User';
-import firestore = firebase.firestore;
 import { Member } from '../model/Member';
 
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
 
 
 export const getCurrentUser = (): firebase.User | null => {
-  const currentUser = firebase.auth().currentUser;
-  return currentUser;
+  return firebase.auth().currentUser;
 };
 
 export const deleteDBUser = async (email: string): Promise<void> => {

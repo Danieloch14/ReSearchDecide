@@ -24,7 +24,10 @@ export const CreateGroupScreen = () => {
       setGroupCreated(true);
       if (createdGroup !== null) {
         setCreatedGroup(createdGroup);
-        setGroups((groups) => [...groups, createdGroup]);
+        setGroups(prevGroups => {
+          console.log('prevGroups:', prevGroups); // Verifica si prevGroups tiene la lista de grupos antes de agregar el nuevo grupo
+          return [...prevGroups, createdGroup];
+        });
       }
     } catch (error) {
       console.error(error);

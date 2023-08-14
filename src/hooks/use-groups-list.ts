@@ -10,6 +10,7 @@ const useGroupsList = () => {
     const fetchGroups = async () => {
       try {
         const groupsData = await getGroupsByUser();
+        console.log('GURPOSSS; ',groupsData);
         setGroups(groupsData);
       } catch (error) {
         console.log(error);

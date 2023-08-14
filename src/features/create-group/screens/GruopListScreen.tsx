@@ -11,11 +11,7 @@ import { ScrollView } from "native-base";
 import { useGroupsContext } from "../../../context/GroupContext";
 
 export const GroupListScreen = () => {
-  let { groups, loading } = useGroupsList();
-  const { groups: groupsContext } = useGroupsContext();
-
-  groups = groupsContext;
-
+  const { groups, loading } = useGroupsContext();
 
   const [searchValue, setSearchValue] = useState('');
 
