@@ -2,26 +2,24 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { User } from '../model/User';
-import firestore = firebase.firestore;
 import { Member } from '../model/Member';
+import { useGroupsContext } from "../context/GroupContext";
 
 export const getUser = (): firebase.User | null => firebase.auth().currentUser;
 
 
-export const getCurrentUser = (): Promise<firebase.User | null> => {
+export const getCurrentUser = (): firebase.User | null => {
+  return firebase.auth().currentUser;
+};
+
+export const getCurrentUserForGroupList = async (): Promise<firebase.User | null> => {
   return new Promise((resolve) => {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       unsubscribe();
-      console.log('User changed:', user);
-      if (user) {
-        resolve(user);
-      } else {
-        resolve(null);
-      }
+      resolve(user);
     });
   });
 };
-
 
 export const deleteDBUser = async (email: string): Promise<void> => {
   const userRef = firebase.firestore().collection('users').where('email', '==', email);
@@ -114,9 +112,12 @@ export const logIn = ({ email = '', password = '' }: {
   email: string;
   password: string;
 }): Promise<firebase.auth.UserCredential> => {
+
+
   return firebase.auth().signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
         console.log('Inicio de sesión exitoso');
+
         return userCredential;
       })
       .catch((error) => {

@@ -12,6 +12,7 @@ import ErrorMessage from "../../../components/util/ErrorMessage";
 
 export const EditProfileScreen = () => {
   const user = getCurrentUser();
+
   const isWeb = Platform.OS === 'web';
   const textSize = isWeb ? 'text-5xl' : 'text-3xl';
   const textSizeSub = isWeb ? 'text-4xl' : 'text-xl';

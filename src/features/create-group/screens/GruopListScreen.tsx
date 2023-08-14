@@ -10,8 +10,9 @@ import UserListComponent from "../../../components/UserListComponent";
 import { ScrollView } from "native-base";
 import { useGroupsContext } from "../../../context/GroupContext";
 
-export const GroupListScreen = () => {
-  const { groups, loading } = useGroupsContext();
+export const GroupListScreen = ({loading}: {loading: boolean}) => {
+
+  const { groups } = useGroupsContext();
 
   const [searchValue, setSearchValue] = useState('');
 
